@@ -3,7 +3,6 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControl from '@mui/material/FormControl';
@@ -22,7 +21,7 @@ import { useNavigate } from "react-router-dom";
 
 const theme = createTheme();
 
-const distance = [
+const distances = [
   {label:'20 miles'},
   {label:'50 miles'},
   {label:'100 miles'},
@@ -32,22 +31,14 @@ const distance = [
 export default function AddressForm() {
 let navigate = useNavigate();
 const routeChange = () =>{ 
-  let path = `dashboard`; 
-  navigate(path);
+  console.log(address,distance);
+  // let path = `dashboard`; 
+  // navigate(path);
 };
 
-const [value, setValue] = React.useState("None");
-
-  function handleClick(event){
-    if(event.target.value===value){
-      setValue("");
-    }
-    else{
-      setValue(event.target.value);
-      console.log(event.target.value);
-    }
-
-  };
+// const [value, setValue] = React.useState('');
+const [distance, setDistance] = React.useState('');
+const [address, setAddress] = React.useState('');
 
   return (
     <ThemeProvider theme={theme}>
@@ -87,7 +78,7 @@ const [value, setValue] = React.useState("None");
             defaultValue="within"
             name="radio-buttons-group"
         >
-        <FormControlLabel value="within" control={<Radio onClick={handleClick}/>} label="within" />
+        <FormControlLabel value="within" control={<Radio />} label="within" />
         </RadioGroup>
         </FormControl>
         </Grid>
@@ -96,9 +87,10 @@ const [value, setValue] = React.useState("None");
         <Autocomplete
             disablePortal
             id="combo-box-demo"
-            options={distance}
+            options={distances}
             // sx={{ width: 300 }}
             renderInput={(params) => <TextField {...params} label="Distance" />}
+            onChange={(event,value)=>setDistance(value)}
         />
         </Grid>
         <Grid item xs={12} sm={7.5}>
@@ -106,10 +98,11 @@ const [value, setValue] = React.useState("None");
             required
             id="address1"
             name="address1"
-            label="Address line 1"
+            label="Address"
             fullWidth
             autoComplete="shipping address-line1"
             variant="outlined"
+            onChange={(event)=>setAddress(event.currentTarget.value)}
           />
         </Grid>
 
@@ -118,11 +111,9 @@ const [value, setValue] = React.useState("None");
         <FormLabel id="demo-radio-buttons-group-label"></FormLabel>
         <RadioGroup
             aria-labelledby="demo-radio-buttons-group-label"
-            // defaultValue="In Country, State, or City"
             name="radio-buttons-group"
-            value={value}
         >
-        <FormControlLabel value="None" control={<Radio onClick={handleClick}/>} label="In Country, State, or City" />
+        <FormControlLabel value="None" control={<Radio />} label="In Country, State, or City" />
         </RadioGroup>
         </FormControl>
         </Grid>
@@ -157,6 +148,7 @@ const [value, setValue] = React.useState("None");
             label="Intervention/Treatment"
             fullWidth
             variant="outlined"
+            defaultValue="Waldenstrom"
           />
         </Grid>
 
@@ -168,6 +160,7 @@ const [value, setValue] = React.useState("None");
             label="Status"
             fullWidth
             variant="outlined"
+            defaultValue="Recruiting"
           />
         </Grid>
 
