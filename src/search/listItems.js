@@ -1,32 +1,14 @@
 import * as React from 'react';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import ListSubheader from '@mui/material/ListSubheader';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import PeopleIcon from '@mui/icons-material/People';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import LayersIcon from '@mui/icons-material/Layers';
-import AssignmentIcon from '@mui/icons-material/Assignment';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import Autocomplete from '@mui/material/Autocomplete';
-import Container from '@mui/material/Container';
-import Paper from '@mui/material/Paper';
-import CssBaseline from '@mui/material/CssBaseline';
-import AppBar from '@mui/material/AppBar';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
 
 const distance = [
   {label:'20 miles'},
@@ -36,7 +18,12 @@ const distance = [
 ];
 
 
-export const mainListItems = (
+export default function Filters() {
+  const [value, setValue] = React.useState('within');
+  const [distance, setDistance] = React.useState('');
+  const [address, setAddress] = React.useState('');
+
+  return(
   <React.Fragment>
       <div style={{marginLeft:"20px"}}>
       <br></br>
@@ -63,10 +50,11 @@ export const mainListItems = (
         <FormLabel id="demo-radio-buttons-group-label"></FormLabel>
         <RadioGroup
             aria-labelledby="demo-radio-buttons-group-label"
-            defaultValue="Within"
             name="radio-buttons-group"
+            value={value}
+            onChange={(e)=>setValue(e.currentTarget.value)}
         >
-        <FormControlLabel value="None" control={<Radio />} label="within" />
+        <FormControlLabel value="within" control={<Radio />} label="Within" />
         </RadioGroup>
         </FormControl>
         </Grid>
@@ -78,18 +66,20 @@ export const mainListItems = (
             options={distance}
             // sx={{ width: 250 }}
             renderInput={(params) => <TextField {...params} label="Distance" />}
+            onChange={(event,value)=>setDistance(value)}
         />
         </Grid>
 
         <Grid item xs={10}>
         <TextField
             required
-            id="Country"
-            name="Country"
+            id="Address"
+            name="Address"
             label="Address"
             fullWidth
             autoComplete="shipping address-line1"
             variant="outlined"
+            onChange={(event)=>setAddress(event.currentTarget.value)}
           />
         </Grid>
 
@@ -140,30 +130,8 @@ export const mainListItems = (
 
    <br></br>  
   </React.Fragment>
-);
+  );
+};
 
-export const secondaryListItems = (
-  <React.Fragment>
-    {/* <ListSubheader component="div" inset>
-      Saved reports
-    </ListSubheader>
-    <ListItemButton>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Current month" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Last quarter" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Year-end sale" />
-    </ListItemButton> */}
-  </React.Fragment>
-);
+
+

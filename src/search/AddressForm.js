@@ -31,12 +31,12 @@ const distances = [
 export default function AddressForm() {
 let navigate = useNavigate();
 const routeChange = () =>{ 
-  console.log(address,distance);
+  console.log(value);
   // let path = `dashboard`; 
   // navigate(path);
 };
 
-// const [value, setValue] = React.useState('');
+const [value, setValue] = React.useState('within');
 const [distance, setDistance] = React.useState('');
 const [address, setAddress] = React.useState('');
 
@@ -77,6 +77,8 @@ const [address, setAddress] = React.useState('');
             aria-labelledby="demo-radio-buttons-group-label"
             defaultValue="within"
             name="radio-buttons-group"
+            value={value}
+            onChange={(e)=>setValue(e.currentTarget.value)}
         >
         <FormControlLabel value="within" control={<Radio />} label="within" />
         </RadioGroup>
@@ -112,8 +114,10 @@ const [address, setAddress] = React.useState('');
         <RadioGroup
             aria-labelledby="demo-radio-buttons-group-label"
             name="radio-buttons-group"
+            value={value}
+            onChange={(e)=>setValue(e.currentTarget.value)}
         >
-        <FormControlLabel value="None" control={<Radio />} label="In Country, State, or City" />
+        <FormControlLabel value="Country" control={<Radio />} label="In Country, State, or City" />
         </RadioGroup>
         </FormControl>
         </Grid>
