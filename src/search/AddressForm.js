@@ -31,9 +31,9 @@ const distances = [
 export default function AddressForm() {
 let navigate = useNavigate();
 const routeChange = () =>{ 
-  console.log(value);
-  // let path = `dashboard`; 
-  // navigate(path);
+  // console.log(value);
+  let path = `dashboard`; 
+  navigate(path);
 };
 
 const [value, setValue] = React.useState('within');
