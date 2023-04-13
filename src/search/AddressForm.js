@@ -54,7 +54,7 @@ const [address, setAddress] = React.useState('');
     >
       <Toolbar>
         <Typography variant="h6" color="inherit" noWrap>
-          Company name
+          IWMF
         </Typography>
       </Toolbar>
     </AppBar>

@@ -9,8 +9,9 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
+import { useNavigate } from 'react-router-dom';
 
-const distance = [
+const distances = [
   {label:'20 miles'},
   {label:'50 miles'},
   {label:'100 miles'},
@@ -22,6 +23,12 @@ export default function Filters() {
   const [value, setValue] = React.useState('within');
   const [distance, setDistance] = React.useState('');
   const [address, setAddress] = React.useState('');
+
+  let navigate = useNavigate();
+  const goBack = () => {
+  let path='../';
+  navigate(path);
+  };
 
   return(
   <React.Fragment>
@@ -63,7 +70,7 @@ export default function Filters() {
         <Autocomplete
             disablePortal
             id="combo-box-demo"
-            options={distance}
+            options={distances}
             // sx={{ width: 250 }}
             renderInput={(params) => <TextField {...params} label="Distance" />}
             onChange={(event,value)=>setDistance(value)}
@@ -118,7 +125,7 @@ export default function Filters() {
       <br></br>
       <div>
       <div>
-        <Button variant='contained' size='large' style={{float:'left'}}>Back</Button>
+        <Button variant='contained' size='large' style={{float:'left'}} onClick={goBack}>Back</Button>
         {/* <Button variant='contained' size='large' style={{marginRight:'10px'}}>Update</Button> */}
         {/* <Button variant='contained' size='large' marginLeft='100px'>Update</Button> */}
       </div>
