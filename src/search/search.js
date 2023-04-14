@@ -56,6 +56,11 @@ const LocationCountry = 'LocationCountry';
 const LocationState = 'LocationState';
 const LocationCity = 'LocationCity';
 const LocationZip = 'LocationZip';
+const LocationStatus = 'LocationStatus';
+
+
+const API_QUERY_ADDRESS_HEADER = 'https://clinicaltrials.gov/api/query/full_studies';
+
 
 function AND() {
   return spaceRep+'AND'+spaceRep;
@@ -83,6 +88,7 @@ function AREA(subSubSection, target){
  * the city that you will search at, if information not found use empty string
  * @param {String} zip 
  * the ZIP that you will search at, if information not found use empty string
+ * @param {String} status
  * @returns 
  * a parsed URL component that can be used in API URL,
  * for example when we are going to search in Bethesda in maryland the expression will be 
@@ -93,27 +99,32 @@ function AREA(subSubSection, target){
  * @TODO
  * test it
  */
-function createSearchEXP(country,state,city, zip) {
+function createSearchEXP(country,state,city, zip, status) {
   var expressiongURL;
   var added = false;
   var ANDLength = AND().length;
-  if(!country == null){
+  if(!country == ''){
     expressiongURL += AREA(LocationCountry,country);
     expressiongURL += AND();
     added = true;
   }
-  if(!state == null){
+  if(!state == ''){
     expressiongURL += AREA(LocationState,state);
     expressiongURL += AND();
     added = true;
   }
-  if(!city == null){
+  if(!city == ''){
     expressiongURL += AREA(LocationCity,city);
     expressiongURL += AND();
     added = true;
   }
-  if(!zip == null){
+  if(!zip == ''){
     expressiongURL += AREA(LocationZip,zip);
+    expressiongURL += AND();
+    added = true;
+  }
+  if(!status == ''){
+    expressiongURL += AREA(LocationStatus,status);
     expressiongURL += AND();
     added = true;
   }
@@ -121,6 +132,12 @@ function createSearchEXP(country,state,city, zip) {
     expressiongURL = expressiongURL.substring(0,expressiongURL.length - ANDLength);
   }
   return SEARCH(LOCATIONSECTION,expressiongURL);
+}
+
+
+
+function createExpression(expression) {
+
 }
 
 const theme = createTheme();
