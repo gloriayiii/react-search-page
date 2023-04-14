@@ -74,6 +74,19 @@ function AREA(subSubSection, target){
   return 'AREA' + leftSquareBracket + subSubSection + rightSquareBracket + spaceRep + target;
 }
 
+/**
+ * This function is aim to create expression string for invention
+ * @param {String} expression 
+ * @returns URL part for inventury
+ * for example pthe expreesion is Waldenstrom
+ * it should give ?expr=Waldenstrom
+ */
+
+function createInvention(expression) {
+  expression = expression.trim();
+  return '?expr=' + expression.replace(' ', spaceRep);;
+}
+
 
 /**
  * for the expr grammer see the API reference:
@@ -134,11 +147,6 @@ function createSearchEXP(country,state,city, zip, status) {
   return SEARCH(LOCATIONSECTION,expressiongURL);
 }
 
-
-
-function createExpression(expression) {
-
-}
 
 const theme = createTheme();
 
