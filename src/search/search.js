@@ -89,6 +89,9 @@ function AREA(subSubSection, target){
  * SEARCH[Location](AREA[LocationCity] Bethesda AND AREA[LocationState] Maryland)
  * the result will be 
  * SEARCH%5BLocation%5D%28AREA%5BLocationCity%5D+Bethesda+AND+AREA%5BLocationState%5D+Maryland%29
+ * 
+ * @TODO
+ * test it
  */
 function createSearchEXP(country,state,city, zip) {
   var expressiongURL;
