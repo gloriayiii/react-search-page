@@ -74,6 +74,21 @@ function AREA(subSubSection, target){
   return 'AREA' + leftSquareBracket + subSubSection + rightSquareBracket + spaceRep + target;
 }
 
+
+
+function JSONFormater() {
+  return '&fmt=json';
+}
+
+function min_rank(rank) {
+  return '&min_rnk=' + rank.toString();
+}
+
+function max_rank(rank) {
+  return '&max_rnk=' + rank.toString();
+}
+
+
 /**
  * This function is aim to create expression string for invention
  * @param {String} expression 
@@ -86,7 +101,6 @@ function createInvention(expression) {
   expression = expression.trim();
   return '?expr=' + expression.replace(' ', spaceRep);;
 }
-
 
 /**
  * for the expr grammer see the API reference:
