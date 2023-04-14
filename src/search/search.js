@@ -44,6 +44,82 @@ function getStepContent(step) {
   }
 }
 
+
+
+const leftSquareBracket = '%5B';
+const rightSquareBracket = '%5D';
+const leftBracket = '%28';
+const righBracket = '%29';
+const spaceRep = '+';
+const LOCATIONSECTION = 'Location';
+const LocationCountry = 'LocationCountry';
+const LocationState = 'LocationState';
+const LocationCity = 'LocationCity';
+const LocationZip = 'LocationZip';
+
+function AND() {
+  return spaceRep+'AND'+spaceRep;
+}
+
+function SEARCH(subSection, condition){
+  return 'SEARCH' + leftSquareBracket + subSection + rightSquareBracket + leftBracket + condition + righBracket;
+}
+
+function AREA(subSubSection, target){
+  return 'AREA' + leftSquareBracket + subSubSection + rightSquareBracket + spaceRep + target;
+}
+
+
+/**
+ * for the expr grammer see the API reference:
+ * https://clinicaltrials.gov/api/gui/ref/syntax#searchExpr
+ * Main objective is to use the search context operator in clinical trial API, references can be found at:
+ * https://clinicaltrials.gov/api/gui/ref/expr#searchOp
+ * @param {String} country 
+ * the country that you will search at, if information not found use empty string
+ * @param {String} state 
+ * the state that you will search at, if information not found use empty string
+ * @param {String} city 
+ * the city that you will search at, if information not found use empty string
+ * @param {String} zip 
+ * the ZIP that you will search at, if information not found use empty string
+ * @returns 
+ * a parsed URL component that can be used in API URL,
+ * for example when we are going to search in Bethesda in maryland the expression will be 
+ * SEARCH[Location](AREA[LocationCity] Bethesda AND AREA[LocationState] Maryland)
+ * the result will be 
+ * SEARCH%5BLocation%5D%28AREA%5BLocationCity%5D+Bethesda+AND+AREA%5BLocationState%5D+Maryland%29
+ */
+function createSearchEXP(country,state,city, zip) {
+  var expressiongURL;
+  var added = false;
+  var ANDLength = AND().length;
+  if(!country == null){
+    expressiongURL += AREA(LocationCountry,country);
+    expressiongURL += AND();
+    added = true;
+  }
+  if(!state == null){
+    expressiongURL += AREA(LocationState,state);
+    expressiongURL += AND();
+    added = true;
+  }
+  if(!city == null){
+    expressiongURL += AREA(LocationCity,city);
+    expressiongURL += AND();
+    added = true;
+  }
+  if(!zip == null){
+    expressiongURL += AREA(LocationZip,zip);
+    expressiongURL += AND();
+    added = true;
+  }
+  if(added){
+    expressiongURL = expressiongURL.substring(0,expressiongURL.length - ANDLength);
+  }
+  return SEARCH(LOCATIONSECTION,expressiongURL);
+}
+
 const theme = createTheme();
 
 export default function Checkout() {
