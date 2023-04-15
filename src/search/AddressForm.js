@@ -16,8 +16,15 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import { Divider } from '@mui/material';
+import { Divider, Skeleton } from '@mui/material';
 import { useNavigate } from "react-router-dom";
+import { useRef } from 'react';
+
+import { useJsApiLoader } from '@react-google-maps/api';
+// import { Autocomplete } from "react-google-autocomplete";
+// import { usePlacesWidget } from "react-google-autocomplete";
+import { StandaloneSearchBox, LoadScript } from "@react-google-maps/api";
+import data from '../config';
 
 const theme = createTheme();
 
@@ -39,6 +46,17 @@ const routeChange = () =>{
 const [value, setValue] = React.useState('within');
 const [distance, setDistance] = React.useState('');
 const [address, setAddress] = React.useState('');
+
+const inputRef = useRef();
+const handlePlaceChanged = () => { 
+    const [ place ] = inputRef.current.getPlaces();
+    if(place) { 
+        console.log(place.formatted_address)
+        console.log(place.geometry.location.lat())
+        console.log(place.geometry.location.lng())
+    } 
+}
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -95,7 +113,13 @@ const [address, setAddress] = React.useState('');
             onChange={(event,value)=>setDistance(value)}
         />
         </Grid>
-        <Grid item xs={12} sm={7.5}>
+
+        <Grid item xs={12} sm={7.5}>        
+        <LoadScript googleMapsApiKey = {data.REACT_GOOGLE_API_KEY} libraries={["places"]}>
+                <StandaloneSearchBox
+                    onLoad={ref => inputRef.current = ref}
+                    onPlacesChanged={handlePlaceChanged}
+                >
           <TextField
             required
             id="address1"
@@ -105,8 +129,12 @@ const [address, setAddress] = React.useState('');
             autoComplete="shipping address-line1"
             variant="outlined"
             onChange={(event)=>setAddress(event.currentTarget.value)}
-          />
+          />       
+        </StandaloneSearchBox>
+        </LoadScript>
         </Grid>
+
+
 
       <Grid item xs={12} sm={4}>
       <FormControl>
@@ -169,6 +197,8 @@ const [address, setAddress] = React.useState('');
         </Grid>
 
       </Grid>
+      {/* </StandaloneSearchBox>
+        </LoadScript> */}
       <React.Fragment>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
