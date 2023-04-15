@@ -44,13 +44,17 @@ function getStepContent(step) {
   }
 }
 
+//URL parse part
 
+//parameters
 
 const leftSquareBracket = '%5B';
 const rightSquareBracket = '%5D';
 const leftBracket = '%28';
 const righBracket = '%29';
-const spaceRep = '+';
+const spaceRep = '%20';
+const comma = '%2C';
+const colon = '%3A';
 const LOCATIONSECTION = 'Location';
 const LocationCountry = 'LocationCountry';
 const LocationState = 'LocationState';
@@ -58,10 +62,11 @@ const LocationCity = 'LocationCity';
 const LocationZip = 'LocationZip';
 const LocationStatus = 'LocationStatus';
 
+//URL headers
+const API_QUERY_ADDRESS_HEADER = 'https://beta.clinicaltrials.gov/api/int/studies/download?format=json';
 
-const API_QUERY_ADDRESS_HEADER = 'https://clinicaltrials.gov/api/query/full_studies';
 
-
+// LOGICAL and grammer expressions
 function AND() {
   return spaceRep+'AND'+spaceRep;
 }
@@ -74,32 +79,48 @@ function AREA(subSubSection, target){
   return 'AREA' + leftSquareBracket + subSubSection + rightSquareBracket + spaceRep + target;
 }
 
-
-
-function JSONFormater() {
-  return '&fmt=json';
+function DISTANCE(lat, long, distance) {
+  return 'distance' + leftBracket + lat + comma + long + distance + righBracket; //distance should also end with a mi for miles, for example '250mi'
 }
 
-function min_rank(rank) {
-  return '&min_rnk=' + rank.toString();
+function STATUS(status) {
+  return 'status' + colon + status; //rec for recruiting
 }
 
-function max_rank(rank) {
-  return '&max_rnk=' + rank.toString();
-}
 
+
+//URL componnet functions
 
 /**
  * This function is aim to create expression string for invention
  * @param {String} expression 
  * @returns URL part for inventury
  * for example pthe expreesion is Waldenstrom
- * it should give ?expr=Waldenstrom
+ * 
  */
 
-function createInvention(expression) {
+function inventionFilter(expression) {
   expression = expression.trim();
-  return '?expr=' + expression.replace(' ', spaceRep);;
+  if(expression == '') return '';
+  return '&query.intr=' + expression;
+}
+
+function aggFilter(expression) {
+  expression = expression.trim();
+  if(expression == '') return '';
+  return '&aggFilters=' + expression;
+}
+
+function advanceFilter(expression) {
+  expression = expression.trim();
+  if(expression == '') return '';
+  return '&filter.advanced=' + expression;
+}
+
+function geoFilter(expression) {
+  expression = expression.trim();
+  if(expression == '') return '';
+  return '&filter.geo=distance' + expression;
 }
 
 /**
@@ -126,7 +147,7 @@ function createInvention(expression) {
  * @TODO
  * test it
  */
-function createSearchEXP(country,state,city, zip, status) {
+function createSearchEXP(country,state,city, zip) {
   var expressiongURL;
   var added = false;
   var ANDLength = AND().length;
@@ -150,17 +171,42 @@ function createSearchEXP(country,state,city, zip, status) {
     expressiongURL += AND();
     added = true;
   }
-  if(!status == ''){
-    expressiongURL += AREA(LocationStatus,status);
-    expressiongURL += AND();
-    added = true;
-  }
   if(added){
     expressiongURL = expressiongURL.substring(0,expressiongURL.length - ANDLength);
   }
   return SEARCH(LOCATIONSECTION,expressiongURL);
 }
 
+
+function searchUseMiles(long, lat, miles, status, invention){
+  //pre-parse
+
+  // miles
+  miles = miles.substring(0, miles.length - 6 ) + 'mi';
+
+  //status
+  if(status == 'Recruiting'){
+    status = 'rec'
+  }
+
+  //expression
+  return API_QUERY_ADDRESS_HEADER + inventionFilter(invention) + aggFilter(STATUS(status)) + geoFilter(DISTANCE(long,lat,miles));
+}
+
+function searchUseAddress(address, status, invention){
+  //pre-parse
+
+  //address
+  var country, state, city, zip = '';
+
+  //status
+  if(status == 'Recruiting'){
+    status = 'rec'
+  }
+
+  //expression
+  return API_QUERY_ADDRESS_HEADER + inventionFilter(invention) + aggFilter(STATUS(status)) + advanceFilter(createSearchEXP(country,state,city,zip));
+}
 
 const theme = createTheme();
 
