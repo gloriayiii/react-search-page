@@ -224,36 +224,68 @@ const [country,setCountry] = React.useState('');
 const [zip,setZipcode] = React.useState('');
 const [intervention,setIntervention] = React.useState('waldenstrom');
 const [status,setStatus] = React.useState('rec');
+const [place , setPlace] = React.useState();
 
 //create address info
 const handleSearch = () =>{
   //console.log(value, distance.label, address,country,zip,intervention,status);
   var searchURL;
+  var resultData = {
+    value : '',
+    address : '',
+    country : '',
+    intervention : '',
+    status : '' ,
+    data : ''
+  };
+  resultData.value = value;
   if(value == 'within'){
-    //TODO: set up long and lat from address
-    var long = '40.4442526';
-    var lat = '-79.953239';
+    //DONE: set up long and lat from address
+    var long = place.geometry.location.lat();
+    var lat = place.geometry.location.lng();
     searchURL = searchUseMiles(long,lat,distance.label,status,intervention);
+    resultData.address = place.formatted_address;
+    resultData.status = status;
+    resultData.intervention = intervention;
   }
   if(value == 'Country'){
     searchURL = searchUseAddress(country,status,intervention);
+    resultData.country = country;
+    resultData.intervention = intervention;
+    resultData.status = status;
   }
   //console.log(searchURL);
   axios.get(searchURL).then(response => {
-      console.log(response.data);
+      resultData.data = response.data;
   });
+  //{
+  //  address: address
+  //  country: ? 
+  //  invention:
+  //  status:
+  //  data: {[
+  //   ....
+  //]}
+  //}
+  console.log(resultData);
+  let path = `dashboard`; 
+  navigate(path,{state : resultData});
 }
 
 const inputRef = useRef();
+
 const handlePlaceChanged = () => { 
   // console.log('test point here');
   // console.log(address);
     const [ place ] = inputRef.current.getPlaces();
     if(place) { 
-        console.log(place.formatted_address)
-        console.log(place.geometry.location.lat())
-        console.log(place.geometry.location.lng())
-    } 
+        console.log(place.formatted_address);
+        console.log(place.geometry.location.lat());
+        console.log(place.geometry.location.lng());
+        setPlace(place);
+    }
+     
+    
 }
 
 
