@@ -20,7 +20,7 @@ import { Divider, Skeleton } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import { useRef } from 'react';
 
-import { useJsApiLoader } from '@react-google-maps/api';
+// import { useJsApiLoader } from '@react-google-maps/api';
 // import { Autocomplete } from "react-google-autocomplete";
 // import { usePlacesWidget } from "react-google-autocomplete";
 import { StandaloneSearchBox, LoadScript } from "@react-google-maps/api";
@@ -49,6 +49,8 @@ const [address, setAddress] = React.useState('');
 
 const inputRef = useRef();
 const handlePlaceChanged = () => { 
+  // console.log('test point here');
+  // console.log(address);
     const [ place ] = inputRef.current.getPlaces();
     if(place) { 
         console.log(place.formatted_address)
@@ -116,9 +118,9 @@ const handlePlaceChanged = () => {
 
         <Grid item xs={12} sm={7.5}>        
         <LoadScript googleMapsApiKey = {data.REACT_GOOGLE_API_KEY} libraries={["places"]}>
-                <StandaloneSearchBox
-                    onLoad={ref => inputRef.current = ref}
-                    onPlacesChanged={handlePlaceChanged}
+        <StandaloneSearchBox
+            onLoad={ref => inputRef.current = ref}
+            onPlacesChanged={handlePlaceChanged}
                 >
           <TextField
             required

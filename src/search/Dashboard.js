@@ -18,10 +18,9 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import Filters from './listItems';
 import Orders from '../dashboard/Orders';
-import AddressForm from './AddressForm';
 import { useNavigate } from "react-router-dom";
 
-const drawerWidth = 480;
+const drawerWidth = 440;
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
@@ -41,31 +40,31 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    '& .MuiDrawer-paper': {
-      position: 'relative',
-      whiteSpace: 'nowrap',
-      width: drawerWidth,
-      transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      boxSizing: 'border-box',
-      ...(!open && {
-        overflowX: 'hidden',
-        transition: theme.transitions.create('width', {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.leavingScreen,
-        }),
-        width: theme.spacing(7),
-        [theme.breakpoints.up('sm')]: {
-          width: theme.spacing(9),
-        },
-      }),
-    },
-  }),
-);
+// const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+//   ({ theme, open }) => ({
+//     '& .MuiDrawer-paper': {
+//       position: 'relative',
+//       whiteSpace: 'nowrap',
+//       width: drawerWidth,
+//       transition: theme.transitions.create('width', {
+//         easing: theme.transitions.easing.sharp,
+//         duration: theme.transitions.duration.enteringScreen,
+//       }),
+//       boxSizing: 'border-box',
+//       ...(!open && {
+//         overflowX: 'hidden',
+//         transition: theme.transitions.create('width', {
+//           easing: theme.transitions.easing.sharp,
+//           duration: theme.transitions.duration.leavingScreen,
+//         }),
+//         width: theme.spacing(7),
+//         [theme.breakpoints.up('sm')]: {
+//           width: theme.spacing(9),
+//         },
+//       }),
+//     },
+//   }),
+// );
 
 const mdTheme = createTheme();
 
@@ -81,11 +80,21 @@ function DashboardContent() {
   navigate(path);
 };
 
+// const inputRef = useRef();
+// const handlePlaceChanged = () => { 
+//     const [ place ] = inputRef.current.getPlaces();
+//     if(place) { 
+//         console.log(place.formatted_address)
+//         console.log(place.geometry.location.lat())
+//         console.log(place.geometry.location.lng())
+//     } 
+// }
+
   return (
     <ThemeProvider theme={mdTheme}>
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <AppBar position="absolute" open={open}>
+        <AppBar position="fixed" open={open}>
           <Toolbar
             sx={{
               pr: '24px', // keep right padding when drawer closed
@@ -97,7 +106,7 @@ function DashboardContent() {
               aria-label="open drawer"
               onClick={toggleDrawer}
               sx={{
-                marginRight: '36px',
+                marginRight: '20px',
                 ...(open && { display: 'none' }),
               }}
             >
@@ -121,8 +130,8 @@ function DashboardContent() {
           </Toolbar>
         </AppBar>
         
-        <Drawer variant="permanent" open={open}>
-          <Toolbar
+        {/* <Drawer variant="permanent" open={open}> */}
+          {/* <Toolbar
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -133,11 +142,17 @@ function DashboardContent() {
             <IconButton onClick={goBack}>
               <ChevronLeftIcon />
             </IconButton>
-          </Toolbar>
+          </Toolbar> */}
           <Divider />
+          {/* <LoadScript googleMapsApiKey = {data.REACT_GOOGLE_API_KEY} libraries={["places"]}>
+          <StandaloneSearchBox
+            onLoad={ref => inputRef.current = ref}
+            onPlacesChanged={handlePlaceChanged}>     */}
            <Filters />
+          {/* </StandaloneSearchBox>
+          </LoadScript> */}
           <Divider />
-        </Drawer>
+        {/* </Drawer> */}
         <Box
           component="main"
           sx={{
