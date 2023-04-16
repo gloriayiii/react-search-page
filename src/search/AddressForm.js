@@ -40,7 +40,7 @@ let navigate = useNavigate();
 const routeChange = () =>{ 
   // console.log(value);
   let path = `dashboard`; 
-  navigate(path);
+  navigate(path,{state : address});
 };
 
 const [value, setValue] = React.useState('within');

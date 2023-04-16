@@ -9,7 +9,7 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useLocation } from 'react-router-dom';
 import { useRef } from 'react';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
@@ -26,6 +26,9 @@ const distances = [
 
 
 export default function Filters() {
+  const location = useLocation();
+  const data=location.state;
+  // console.log(location.state);
   const [value, setValue] = React.useState('within');
   const [distance, setDistance] = React.useState('');
   const [address, setAddress] = React.useState('');
@@ -112,6 +115,7 @@ export default function Filters() {
             fullWidth
             autoComplete="shipping address-line1"
             variant="outlined"
+            value={data}
             onChange={(event)=>setAddress(event.currentTarget.value)}
           />
         </StandaloneSearchBox>
