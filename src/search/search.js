@@ -196,7 +196,7 @@ function searchUseMiles(long, lat, miles, status, invention){
 function searchUseAddress(address, status, invention){
   //pre-parse
 
-  //address
+  //TODO: address
   var country, state, city, zip = '';
 
   //status
