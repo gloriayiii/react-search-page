@@ -3,7 +3,6 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControl from '@mui/material/FormControl';
@@ -19,35 +18,224 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import { Divider } from '@mui/material';
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const theme = createTheme();
 
-const distance = [
+const distances = [
   {label:'20 miles'},
   {label:'50 miles'},
   {label:'100 miles'},
   {label:'200 miles'}
 ];
 
+
+
+
+//URL parse part
+
+//parameters
+
+const leftSquareBracket = '%5B';
+const rightSquareBracket = '%5D';
+const leftBracket = '%28';
+const righBracket = '%29';
+const spaceRep = '%20';
+const comma = '%2C';
+const colon = '%3A';
+const LOCATIONSECTION = 'Location';
+const LocationCountry = 'LocationCountry';
+const LocationState = 'LocationState';
+const LocationCity = 'LocationCity';
+const LocationZip = 'LocationZip';
+const LocationStatus = 'LocationStatus';
+
+//URL headers
+const API_QUERY_ADDRESS_HEADER = 'https://beta.clinicaltrials.gov/api/int/studies/download?format=json';
+
+
+// LOGICAL and grammer expressions
+function AND() {
+  return spaceRep+'AND'+spaceRep;
+}
+
+function SEARCH(subSection, condition){
+  return 'SEARCH' + leftSquareBracket + subSection + rightSquareBracket + leftBracket + condition + righBracket;
+}
+
+function AREA(subSubSection, target){
+  return 'AREA' + leftSquareBracket + subSubSection + rightSquareBracket + spaceRep + target;
+}
+
+function DISTANCE(lat, long, distance) {
+  return 'distance' + leftBracket + lat + comma + long + comma + distance + righBracket; //distance should also end with a mi for miles, for example '250mi'
+}
+
+function STATUS(status) {
+  return 'status' + colon + status; //rec for recruiting
+}
+
+
+
+//URL componnet functions
+
+/**
+ * This function is aim to create expression string for invention
+ * @param {String} expression 
+ * @returns URL part for inventury
+ * for example pthe expreesion is Waldenstrom
+ * 
+ */
+
+function inventionFilter(expression) {
+  expression = expression.trim();
+  if(expression == '') return '';
+  return '&query.intr=' + expression;
+}
+
+function aggFilter(expression) {
+  expression = expression.trim();
+  if(expression == '') return '';
+  return '&aggFilters=' + expression;
+}
+
+function advanceFilter(expression) {
+  expression = expression.trim();
+  if(expression == '') return '';
+  return '&filter.advanced=' + expression;
+}
+
+function geoFilter(expression) {
+  expression = expression.trim();
+  if(expression == '') return '';
+  return '&filter.geo=' + expression;
+}
+
+/**
+ * for the expr grammer see the API reference:
+ * https://clinicaltrials.gov/api/gui/ref/syntax#searchExpr
+ * Main objective is to use the search context operator in clinical trial API, references can be found at:
+ * https://clinicaltrials.gov/api/gui/ref/expr#searchOp
+ * @param {String} country 
+ * the country that you will search at, if information not found use empty string
+ * @param {String} state 
+ * the state that you will search at, if information not found use empty string
+ * @param {String} city 
+ * the city that you will search at, if information not found use empty string
+ * @param {String} zip 
+ * the ZIP that you will search at, if information not found use empty string
+ * @param {String} status
+ * @returns 
+ * a parsed URL component that can be used in API URL,
+ * for example when we are going to search in Bethesda in maryland the expression will be 
+ * SEARCH[Location](AREA[LocationCity] Bethesda AND AREA[LocationState] Maryland)
+ * the result will be 
+ * SEARCH%5BLocation%5D%28AREA%5BLocationCity%5D+Bethesda+AND+AREA%5BLocationState%5D+Maryland%29
+ * 
+ * @TODO
+ * test it
+ */
+function createSearchEXP(country,state,city, zip) {
+  var expressiongURL = '';
+  var added = false;
+  var ANDLength = AND().length;
+  if(!country == ''){
+    expressiongURL += AREA(LocationCountry,country);
+    expressiongURL += AND();
+    added = true;
+  }
+  if(!state == ''){
+    expressiongURL += AREA(LocationState,state);
+    expressiongURL += AND();
+    added = true;
+  }
+  if(!city == ''){
+    expressiongURL += AREA(LocationCity,city);
+    expressiongURL += AND();
+    added = true;
+  }
+  if(!zip == ''){
+    expressiongURL += AREA(LocationZip,zip);
+    expressiongURL += AND();
+    added = true;
+  }
+  if(added){
+    expressiongURL = expressiongURL.substring(0,expressiongURL.length - ANDLength);
+  }
+  //console.log(expressiongURL);
+  return SEARCH(LOCATIONSECTION,expressiongURL);
+}
+
+
+function searchUseMiles(long, lat, miles, status, invention){
+  //pre-parse
+
+  // miles
+  miles = miles.substring(0, miles.length - 6 ) + 'mi';
+
+  //status
+  if(status == 'Recruiting'){
+    status = 'rec'
+  }
+
+  //expression
+  return API_QUERY_ADDRESS_HEADER + inventionFilter(invention) + aggFilter(STATUS(status)) + geoFilter(DISTANCE(long,lat,miles));
+}
+
+function searchUseAddress(address, status, invention){
+  //pre-parse
+
+  //TODO: address
+  var country, state, city, zip = '';
+  country = "United States";
+  country = country.replace(' ', spaceRep);
+  state = 'Maryland';
+  //status
+  if(status == 'Recruiting'){
+    status = 'rec'
+  }
+
+  //expression
+  return API_QUERY_ADDRESS_HEADER + inventionFilter(invention) + aggFilter(STATUS(status)) + advanceFilter(createSearchEXP(country,state,city,zip));
+}
+
+
+
+
 export default function AddressForm() {
 let navigate = useNavigate();
 const routeChange = () =>{ 
+  // console.log(value);
   let path = `dashboard`; 
   navigate(path);
 };
 
-const [value, setValue] = React.useState("None");
+const [value, setValue] = React.useState('within');
+const [distance, setDistance] = React.useState('');
+const [address, setAddress] = React.useState('');
+const [country,setCountry] = React.useState('');
+const [zip,setZipcode] = React.useState('');
+const [intervention,setIntervention] = React.useState('waldenstrom');
+const [status,setStatus] = React.useState('rec');
 
-  function handleClick(event){
-    if(event.target.value===value){
-      setValue("");
-    }
-    else{
-      setValue(event.target.value);
-      console.log(event.target.value);
-    }
-
-  };
+//create address info
+const handleSearch = () =>{
+  //console.log(value, distance.label, address,country,zip,intervention,status);
+  var searchURL;
+  if(value == 'within'){
+    //TODO: set up long and lat from address
+    var long = '40.4442526';
+    var lat = '-79.953239';
+    searchURL = searchUseMiles(long,lat,distance.label,status,intervention);
+  }
+  if(value == 'Country'){
+    searchURL = searchUseAddress(country,status,intervention);
+  }
+  //console.log(searchURL);
+  axios.get(searchURL).then(response => {
+      console.log(response.data);
+  });
+}
 
   return (
     <ThemeProvider theme={theme}>
@@ -63,7 +251,7 @@ const [value, setValue] = React.useState("None");
     >
       <Toolbar>
         <Typography variant="h6" color="inherit" noWrap>
-          Company name
+          IWMF
         </Typography>
       </Toolbar>
     </AppBar>
@@ -86,8 +274,10 @@ const [value, setValue] = React.useState("None");
             aria-labelledby="demo-radio-buttons-group-label"
             defaultValue="within"
             name="radio-buttons-group"
+            value={value}
+            onChange={(e)=>setValue(e.currentTarget.value)}
         >
-        <FormControlLabel value="within" control={<Radio onClick={handleClick}/>} label="within" />
+        <FormControlLabel value="within" control={<Radio />} label="within" />
         </RadioGroup>
         </FormControl>
         </Grid>
@@ -96,9 +286,10 @@ const [value, setValue] = React.useState("None");
         <Autocomplete
             disablePortal
             id="combo-box-demo"
-            options={distance}
+            options={distances}
             // sx={{ width: 300 }}
             renderInput={(params) => <TextField {...params} label="Distance" />}
+            onChange={(event,value)=>setDistance(value)}
         />
         </Grid>
         <Grid item xs={12} sm={7.5}>
@@ -106,10 +297,11 @@ const [value, setValue] = React.useState("None");
             required
             id="address1"
             name="address1"
-            label="Address line 1"
+            label="Address"
             fullWidth
             autoComplete="shipping address-line1"
             variant="outlined"
+            onChange={(event)=>setAddress(event.currentTarget.value)}
           />
         </Grid>
 
@@ -118,11 +310,11 @@ const [value, setValue] = React.useState("None");
         <FormLabel id="demo-radio-buttons-group-label"></FormLabel>
         <RadioGroup
             aria-labelledby="demo-radio-buttons-group-label"
-            // defaultValue="In Country, State, or City"
             name="radio-buttons-group"
             value={value}
+            onChange={(e)=>setValue(e.currentTarget.value)}
         >
-        <FormControlLabel value="None" control={<Radio onClick={handleClick}/>} label="In Country, State, or City" />
+        <FormControlLabel value="Country" control={<Radio />} label="In Country, State, or City" />
         </RadioGroup>
         </FormControl>
         </Grid>
@@ -135,6 +327,7 @@ const [value, setValue] = React.useState("None");
             fullWidth
             autoComplete="shipping address-line1"
             variant="outlined"
+            onChange={(event)=>setCountry(event.currentTarget.value)}
           />
         </Grid>
         <Grid item xs={12} sm={4}>
@@ -146,6 +339,7 @@ const [value, setValue] = React.useState("None");
             fullWidth
             autoComplete="shipping address-line1"
             variant="outlined"
+            onChange={(event)=>setZipcode(event.currentTarget.value)}
           />
         </Grid>
 
@@ -157,6 +351,8 @@ const [value, setValue] = React.useState("None");
             label="Intervention/Treatment"
             fullWidth
             variant="outlined"
+            defaultValue="Waldenstrom"
+            onChange={(event)=>setIntervention(event.currentTarget.value)}
           />
         </Grid>
 
@@ -168,6 +364,8 @@ const [value, setValue] = React.useState("None");
             label="Status"
             fullWidth
             variant="outlined"
+            defaultValue="Recruiting"
+            onChange={(event)=>setStatus(event.currentTarget.value)}
           />
         </Grid>
 
@@ -177,7 +375,7 @@ const [value, setValue] = React.useState("None");
                 <Button
                   variant="contained"
                   sx={{ mt: 3, ml: 1 }}
-                  onClick={routeChange}
+                  onClick={handleSearch}
                 >Search
                 </Button>
               </Box>

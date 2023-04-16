@@ -5,7 +5,6 @@ import MuiDrawer from '@mui/material/Drawer';
 import Box from '@mui/material/Box';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
@@ -17,11 +16,10 @@ import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { mainListItems, secondaryListItems } from '../dashboard/listItems';
-import Chart from '../dashboard/Chart';
-import Deposits from '../dashboard/Deposits';
+import Filters from './listItems';
 import Orders from '../dashboard/Orders';
 import AddressForm from './AddressForm';
+import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 480;
 
@@ -77,6 +75,12 @@ function DashboardContent() {
     setOpen(!open);
   };
 
+  let navigate = useNavigate();
+  const goBack = () => {
+  let path='../';
+  navigate(path);
+};
+
   return (
     <ThemeProvider theme={mdTheme}>
       <Box sx={{ display: 'flex' }}>
@@ -107,7 +111,7 @@ function DashboardContent() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Dashboard
+              Result
             </Typography>
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
@@ -116,6 +120,7 @@ function DashboardContent() {
             </IconButton>
           </Toolbar>
         </AppBar>
+        
         <Drawer variant="permanent" open={open}>
           <Toolbar
             sx={{
@@ -125,14 +130,13 @@ function DashboardContent() {
               px: [1],
             }}
           >
-            {/* <IconButton onClick={toggleDrawer}> */}
-            <IconButton>
+            <IconButton onClick={goBack}>
               <ChevronLeftIcon />
             </IconButton>
           </Toolbar>
           <Divider />
-            {mainListItems}
-            <Divider />
+           <Filters />
+          <Divider />
         </Drawer>
         <Box
           component="main"
