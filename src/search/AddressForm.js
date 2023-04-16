@@ -16,9 +16,16 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import { Divider } from '@mui/material';
+import { Divider, Skeleton } from '@mui/material';
 import { useNavigate } from "react-router-dom";
+import { useRef } from 'react';
+// import { useJsApiLoader } from '@react-google-maps/api';
+// import { Autocomplete } from "react-google-autocomplete";
+// import { usePlacesWidget } from "react-google-autocomplete";
+import { StandaloneSearchBox, LoadScript } from "@react-google-maps/api";
+import data from '../config';
 import axios from "axios";
+
 
 const theme = createTheme();
 
@@ -207,7 +214,7 @@ let navigate = useNavigate();
 const routeChange = () =>{ 
   // console.log(value);
   let path = `dashboard`; 
-  navigate(path);
+  navigate(path,{state : address});
 };
 
 const [value, setValue] = React.useState('within');
@@ -236,6 +243,19 @@ const handleSearch = () =>{
       console.log(response.data);
   });
 }
+
+const inputRef = useRef();
+const handlePlaceChanged = () => { 
+  // console.log('test point here');
+  // console.log(address);
+    const [ place ] = inputRef.current.getPlaces();
+    if(place) { 
+        console.log(place.formatted_address)
+        console.log(place.geometry.location.lat())
+        console.log(place.geometry.location.lng())
+    } 
+}
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -292,7 +312,13 @@ const handleSearch = () =>{
             onChange={(event,value)=>setDistance(value)}
         />
         </Grid>
-        <Grid item xs={12} sm={7.5}>
+
+        <Grid item xs={12} sm={7.5}>        
+        <LoadScript googleMapsApiKey = {data.REACT_GOOGLE_API_KEY} libraries={["places"]}>
+        <StandaloneSearchBox
+            onLoad={ref => inputRef.current = ref}
+            onPlacesChanged={handlePlaceChanged}
+                >
           <TextField
             required
             id="address1"
@@ -302,8 +328,12 @@ const handleSearch = () =>{
             autoComplete="shipping address-line1"
             variant="outlined"
             onChange={(event)=>setAddress(event.currentTarget.value)}
-          />
+          />       
+        </StandaloneSearchBox>
+        </LoadScript>
         </Grid>
+
+
 
       <Grid item xs={12} sm={4}>
       <FormControl>
@@ -370,6 +400,8 @@ const handleSearch = () =>{
         </Grid>
 
       </Grid>
+      {/* </StandaloneSearchBox>
+        </LoadScript> */}
       <React.Fragment>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
