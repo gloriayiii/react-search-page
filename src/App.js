@@ -4,6 +4,8 @@ import Dashboard from './search/Dashboard';
 import AddressForm from './search/AddressForm';
 import Details from './search/details';
 import { Routes,Route } from 'react-router-dom';
+import Detail from './search/Detail';
+import Filters from './search/listItems';
 
 const App = () => {
   return (
@@ -11,7 +13,8 @@ const App = () => {
     <Routes>
       <Route path='/' element={<AddressForm/>} />
       <Route path='/dashboard' element={<Dashboard/>} />
-      <Route path='/details' element={<Details/>} />
+      <Route path='/dashboard/detail' element={<Details/>} />
+      <Route path='/dashboard/test' element={<Filters/>} />
     </Routes>
     </>
   )
