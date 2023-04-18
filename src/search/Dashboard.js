@@ -148,7 +148,7 @@ function DashboardContent() {
           <StandaloneSearchBox
             onLoad={ref => inputRef.current = ref}
             onPlacesChanged={handlePlaceChanged}>     */}
-           <Filters />
+           {/* <Filters /> */}
           {/* </StandaloneSearchBox>
           </LoadScript> */}
           <Divider />

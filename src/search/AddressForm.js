@@ -25,6 +25,7 @@ import { useRef } from 'react';
 import { StandaloneSearchBox, LoadScript } from "@react-google-maps/api";
 import data from '../config';
 import axios from "axios";
+import { Link } from 'react-router-dom';
 
 
 const theme = createTheme();
@@ -436,12 +437,14 @@ const handlePlaceChanged = () => {
         </LoadScript> */}
       <React.Fragment>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button
+                <Link to={`/dashboard`}>
+                    <Button
                   variant="contained"
                   sx={{ mt: 3, ml: 1 }}
                   onClick={handleSearch}
-                >Search
-                </Button>
+                  >Search
+                  </Button>
+                </Link>
               </Box>
             </React.Fragment>
     </React.Fragment>

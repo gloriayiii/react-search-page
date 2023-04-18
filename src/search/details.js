@@ -9,9 +9,10 @@ const ClinicalTrials = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://clinicaltrials.gov/api/query/full_studies?expr=waldenstrom&min_rnk=1&max_rnk=&fmt=json"
+          "https://beta.clinicaltrials.gov/api/int/studies/download?format=json&query.intr=waldenstrom&aggFilters=status%3Arec&filter.geo=distance%2840.4443533%2C-79.960835%2C250mi%29"
         );
-        setStudies(response.data.FullStudiesResponse.FullStudies);
+        setStudies(response.data);
+        console.log(studies)
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -25,29 +26,36 @@ const ClinicalTrials = () => {
       <div className="study" key={index}>
         <div className="table">
           <h3>Study Overview</h3>
-          <p>{study.Study.ProtocolSection.DescriptionModule.BriefSummary}</p>
+          <p>{study.protocolSection.descriptionModule.briefSummary}</p>
         </div>
         <div className="table">
           <h3>Participation Criteria</h3>
-          <p>{study.Study.ProtocolSection.IdentificationModule.OfficialTitle}</p>
+          <p>{study.protocolSection.identificationModule.OfficialTitle}</p>
           <ul>
-            {study.Study.ProtocolSection.ArmsInterventionsModule.ArmGroupList.ArmGroup.map((arm, idx) => (
+            {study.protocolSection.armsInterventionsModule.armGroups.map((arm, idx) => (
               <p key={idx}>
-                <li>{arm.ArmGroupLabel}</li>
-                <li>{arm.ArmGroupType}</li>
-                <li>{arm.ArmGroupDescription}</li>
+                <li>{arm.label}</li>
+                <li>{arm.description}</li>
               </p>
             ))}
           </ul>
           <h3>Eligibility Criteria</h3>
-          <li>{study.Study.ProtocolSection.EligibilityModule.EligibilityCriteria}</li>
+          <li>{study.protocolSection.eligibilityModule.eligibilityCriteria}</li>
         </div>
         <div className="table">
           <h3>Trail contact</h3>
-          <li>{study.Study.ResultsSection.MoreInfoModule.PointOfContact.PointOfContactTitle}</li>
-          <li>{study.Study.ResultsSection.MoreInfoModule.PointOfContact.PointOfContactOrganization}</li>
-          <li>{study.Study.ResultsSection.MoreInfoModule.PointOfContact.PointOfContactEMail}</li>
-          <li>{study.Study.ResultsSection.MoreInfoModule.PointOfContact.PointOfContactPhone}</li>
+          <p>{study.protocolSection.contactsLocationsModule.centralContacts.name}</p>
+            {/* {study.protocolSection.contactsLocationsModule.centralContacts.map((contact, idx) => (
+              <p key={idx}>
+                <li>{contact.name}</li>
+                <li>{contact.phone}</li>
+              </p>
+            ))}
+          </ul> */} 
+          {/* <li>{study.protocolSection.contactsLocationsModule.centralContacts.name}</li>
+          <li>{study.protocolSection.contactsLocationsModule.centralContacts.phone}</li>
+          <li>{study.protocolSection.contactsLocationsModule.centralContacts.email}</li> */}
+
         </div>
       </div>
     ))}
