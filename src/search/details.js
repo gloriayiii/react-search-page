@@ -12,7 +12,7 @@ const ClinicalTrials = () => {
           "https://beta.clinicaltrials.gov/api/int/studies/download?format=json&query.intr=waldenstrom&aggFilters=status%3Arec&filter.geo=distance%2840.4443533%2C-79.960835%2C250mi%29"
         );
         setStudies(response.data);
-        console.log(studies)
+        console.log(response.data)
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -44,7 +44,7 @@ const ClinicalTrials = () => {
         </div>
         <div className="table">
           <h3>Trail contact</h3>
-          <p>{study.protocolSection.contactsLocationsModule.centralContacts.name}</p>
+          {/* <p>{study.protocolSection.contactsLocationsModule.centralContacts.name}</p> */}
             {/* {study.protocolSection.contactsLocationsModule.centralContacts.map((contact, idx) => (
               <p key={idx}>
                 <li>{contact.name}</li>
