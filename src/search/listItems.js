@@ -28,7 +28,7 @@ const distances = [
 export default function Filters() {
   const location = useLocation();
   const data=location.state;
-  // console.log(location.state);
+  console.log(location.state);
   const [value, setValue] = React.useState('within');
   const [distance, setDistance] = React.useState('');
   const [address, setAddress] = React.useState('');

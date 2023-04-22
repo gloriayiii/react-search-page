@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect } from 'react';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
@@ -60,6 +61,15 @@ const LocationStatus = 'LocationStatus';
 //URL headers
 const API_QUERY_ADDRESS_HEADER = 'https://beta.clinicaltrials.gov/api/int/studies/download?format=json';
 
+
+var resultData = {
+  value : '',
+  address : '',
+  country : '',
+  intervention : '',
+  status : '' ,
+  data : []
+}
 
 // LOGICAL and grammer expressions
 function AND() {
@@ -207,7 +217,26 @@ function searchUseAddress(address, status, invention){
 }
 
 
-
+function cloneJSON(obj) {
+  // basic type deep copy
+  if (obj === null || obj === undefined || typeof obj !== 'object')  {
+      return obj
+  }
+  // array deep copy
+  if (obj instanceof Array) {
+      var cloneA = [];
+      for (var i = 0; i < obj.length; ++i) {
+          cloneA[i] = cloneJSON(obj[i]);
+      }              
+      return cloneA;
+  }                  
+  // object deep copy
+  var cloneO = {};   
+  for (var i in obj) {
+      cloneO[i] = cloneJSON(obj[i]);
+  }                  
+  return cloneO;
+}
 
 export default function AddressForm() {
 let navigate = useNavigate();
@@ -227,17 +256,10 @@ const [status,setStatus] = React.useState('rec');
 const [place , setPlace] = React.useState();
 
 //create address info
-const handleSearch = () =>{
+async function handleSearchURL() {
   //console.log(value, distance.label, address,country,zip,intervention,status);
   var searchURL;
-  var resultData = {
-    value : '',
-    address : '',
-    country : '',
-    intervention : '',
-    status : '' ,
-    data : ''
-  };
+  //interventions = intervention.trim().split(',');
   resultData.value = value;
   if(value == 'within'){
     //DONE: set up long and lat from address
@@ -255,22 +277,22 @@ const handleSearch = () =>{
     resultData.status = status;
   }
   //console.log(searchURL);
-  axios.get(searchURL).then(response => {
-      resultData.data = response.data;
-  });
-  //{
-  //  address: address
-  //  country: ? 
-  //  invention:
-  //  status:
-  //  data: {[
-  //   ....
-  //]}
-  //}
-  console.log(resultData);
-  let path = `dashboard`; 
-  navigate(path,{state : resultData});
+  var response = [];
+
+  try {
+    response = await axios.get(searchURL);
+    resultData.data = response.data;
+
+    let path = `dashboard`; 
+    navigate(path,{state : resultData});
+    
+  } catch (error) {
+    console.error(error);
+  }
+
 }
+
+
 
 const inputRef = useRef();
 
@@ -288,6 +310,12 @@ const handlePlaceChanged = () => {
     
 }
 
+// const handleNavigate = (data) => {
+//   resultData.data = responseData;
+//   console.log(data);
+//   let path = `dashboard`; 
+//   navigate(path,{state : resultData});
+// }
 
   return (
     <ThemeProvider theme={theme}>
@@ -439,7 +467,7 @@ const handlePlaceChanged = () => {
                 <Button
                   variant="contained"
                   sx={{ mt: 3, ml: 1 }}
-                  onClick={handleSearch}
+                  onClick={handleSearchURL}
                 >Search
                 </Button>
               </Box>
