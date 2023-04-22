@@ -66,6 +66,7 @@ var resultData = {
   value : '',
   address : '',
   country : '',
+  countryHTML : '',
   intervention : '',
   status : '' ,
   data : []
@@ -128,6 +129,33 @@ function geoFilter(expression) {
   return '&filter.geo=' + expression;
 }
 
+function parseLocationString(locationStr) {
+  // Initialize the result object
+  let result = { locality: '', region: '', 'country-name': '' };
+
+  // Create a temporary DOM element to parse the HTML string
+  const tempElement = document.createElement('div');
+  tempElement.innerHTML = locationStr;
+
+  // Extract the relevant data from the HTML elements
+  const localityElement = tempElement.querySelector('.locality');
+  const regionElement = tempElement.querySelector('.region');
+  const countryElement = tempElement.querySelector('.country-name');
+
+  // Update the result object with the extracted data
+  if (localityElement) {
+    result.locality = localityElement.textContent;
+  }
+  if (regionElement) {
+    result.region = regionElement.textContent;
+  }
+  if (countryElement) {
+    result['country-name'] = countryElement.textContent;
+  }
+
+  return result;
+}
+
 /**
  * for the expr grammer see the API reference:
  * https://clinicaltrials.gov/api/gui/ref/syntax#searchExpr
@@ -152,7 +180,7 @@ function geoFilter(expression) {
  * @TODO
  * test it
  */
-function createSearchEXP(country,state,city, zip) {
+function createSearchEXP(country,state,city) {
   var expressiongURL = '';
   var added = false;
   var ANDLength = AND().length;
@@ -168,11 +196,6 @@ function createSearchEXP(country,state,city, zip) {
   }
   if(!city == ''){
     expressiongURL += AREA(LocationCity,city);
-    expressiongURL += AND();
-    added = true;
-  }
-  if(!zip == ''){
-    expressiongURL += AREA(LocationZip,zip);
     expressiongURL += AND();
     added = true;
   }
@@ -199,21 +222,21 @@ function searchUseMiles(long, lat, miles, status, invention){
   return API_QUERY_ADDRESS_HEADER + inventionFilter(invention) + aggFilter(STATUS(status)) + geoFilter(DISTANCE(long,lat,miles));
 }
 
-function searchUseAddress(address, status, invention){
+function searchUseAddress(htmlString, status, invention){
   //pre-parse
-
+  const address = parseLocationString(htmlString);
   //TODO: address
-  var country, state, city, zip = '';
-  country = "United States";
-  country = country.replace(' ', spaceRep);
-  state = 'Maryland';
+  var country, state, city;
+  country = address['country-name'];
+  state = address['region'];
+  city = address['locality'];
   //status
   if(status == 'Recruiting'){
     status = 'rec'
   }
 
   //expression
-  return API_QUERY_ADDRESS_HEADER + inventionFilter(invention) + aggFilter(STATUS(status)) + advanceFilter(createSearchEXP(country,state,city,zip));
+  return API_QUERY_ADDRESS_HEADER + inventionFilter(invention) + aggFilter(STATUS(status)) + advanceFilter(createSearchEXP(country,state,city));
 }
 
 
@@ -232,6 +255,7 @@ const [country,setCountry] = React.useState('');
 const [intervention,setIntervention] = React.useState('waldenstrom');
 const [status,setStatus] = React.useState('rec');
 const [place , setPlace] = React.useState();
+const [formattedCountry, setFormattedCountry] =  React.useState('');
 
 //create address info
 async function handleSearchURL() {
@@ -265,11 +289,12 @@ async function handleSearchURL() {
       return false;
     }
     searchURL = searchUseAddress(country,status,intervention);
-    resultData.country = country;
+    resultData.country = formattedCountry;
+    resultData.countryHTML = country;
     resultData.intervention = intervention;
     resultData.status = status;
   }
-  //console.log(searchURL);
+  console.log(searchURL);
 
   var response = [];
 
@@ -285,7 +310,6 @@ async function handleSearchURL() {
   }
 
 }
-
 
 
 const PlaceinputRef = useRef('');
@@ -305,9 +329,8 @@ const handleCountryChanged = () => {
     const [ country ] = CountryinputRef.current.getPlaces();
 
     if(country){
-      console.log(country);
-      console.log(country.formatted_address);
-      setCountry(country.formatted_address);
+      setCountry(country.adr_address);
+      setFormattedCountry(country.formatted_address);
     }
      
     
