@@ -17,7 +17,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import { Divider, Skeleton } from '@mui/material';
+import { Divider, Select, Skeleton, MenuItem, InputLabel } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import { useRef } from 'react';
 // import { useJsApiLoader } from '@react-google-maps/api';
@@ -26,6 +26,8 @@ import { useRef } from 'react';
 import { StandaloneSearchBox, LoadScript } from "@react-google-maps/api";
 import data from '../config';
 import axios from "axios";
+import { useForm } from "react-hook-form";
+import { ErrorMessage } from '@hookform/error-message';
 
 
 const theme = createTheme();
@@ -36,8 +38,6 @@ const distances = [
   {label:'100 miles'},
   {label:'200 miles'}
 ];
-
-
 
 
 //URL parse part
@@ -229,7 +229,6 @@ const [value, setValue] = React.useState('within');
 const [distance, setDistance] = React.useState('');
 const [address, setAddress] = React.useState('');
 const [country,setCountry] = React.useState('');
-const [zip,setZipcode] = React.useState('');
 const [intervention,setIntervention] = React.useState('waldenstrom');
 const [status,setStatus] = React.useState('rec');
 const [place , setPlace] = React.useState();
@@ -239,22 +238,39 @@ async function handleSearchURL() {
   //console.log(value, distance.label, address,country,zip,intervention,status);
   var searchURL;
   resultData.value = value;
+  resultData.address = address;
   if(value == 'within'){
+    if(!place){
+      setAddressError('Address is required!');
+      return false;
+    }
     //DONE: set up long and lat from address
+    if(place){
     var long = place.geometry.location.lat();
     var lat = place.geometry.location.lng();
     searchURL = searchUseMiles(long,lat,distance.label,status,intervention);
+    }
+    resultData.distance = distance;
     resultData.address = place.formatted_address;
     resultData.status = status;
     resultData.intervention = intervention;
+    // if (resultData.distance == null || resultData.address == null){
+    //   alert('Please enter a value!');
+    //   window.location.reload(false);
+    // }
   }
   if(value == 'Country'){
+    if(!country){
+      setcountryError('Country is required!');
+      return false;
+    }
     searchURL = searchUseAddress(country,status,intervention);
     resultData.country = country;
     resultData.intervention = intervention;
     resultData.status = status;
   }
   //console.log(searchURL);
+
   var response = [];
 
   try {
@@ -275,21 +291,46 @@ async function handleSearchURL() {
 const inputRef = useRef();
 
 const handlePlaceChanged = () => { 
-  // console.log('test point here');
-  // console.log(address);
-    const [ place ] = inputRef.current.getPlaces();
+    const [ place ] = PlaceinputRef.current.getPlaces();
     if(place) { 
         console.log(place.formatted_address);
         console.log(place.geometry.location.lat());
         console.log(place.geometry.location.lng());
         setPlace(place);
+    }       
+}
+
+const handleCountryChanged = () => { 
+    const [ country ] = CountryinputRef.current.getPlaces();
+    if(country){
+      console.log(country.formatted_address);
+      setCountry(country.formatted_address);
     }
      
     
 }
 
+const handleRadioChanged = (event) => {
+  setValue(event.currentTarget.value);
+  console.log(value);
+  // if (value == 'Country'){
+  //   setCountry();
+  // }
+  // if (value == 'within'){
+  //   console.log('value change to country');
+  //   setAddress('');
+  //   // setPlace();
+  //   PlaceinputRef.current = null;
+  // }
+}
+
+const { register, handleSubmit } = useForm();
+const [ addressError,setAddressError ] = React.useState('');
+const [ countryError,setcountryError ] = React.useState('');
+
 
   return (
+    <div>
     <ThemeProvider theme={theme}>
     <CssBaseline />
     <AppBar
@@ -317,6 +358,7 @@ const handlePlaceChanged = () => {
       <Divider />
     <React.Fragment>
     <br></br>
+    <Box component="form" onSubmit={handleSubmit(handleSearch)}>
       <Grid container spacing={6}>
 
       <Grid item xs={12} sm={1.5}>
@@ -327,7 +369,7 @@ const handlePlaceChanged = () => {
             defaultValue="within"
             name="radio-buttons-group"
             value={value}
-            onChange={(e)=>setValue(e.currentTarget.value)}
+            onChange={handleRadioChanged}
         >
         <FormControlLabel value="within" control={<Radio />} label="within" />
         </RadioGroup>
@@ -343,46 +385,71 @@ const handlePlaceChanged = () => {
             renderInput={(params) => <TextField {...params} label="Distance" />}
             onChange={(event,value)=>setDistance(value)}
         />
+        {/* <FormControl fullWidth>
+        <InputLabel id="demo-simple-select-label">Distance</InputLabel>
+        <Select
+            id="demo-simple-select"
+            // options={distances}
+            // sx={{ width: 300 }}
+            // renderInput={(params) => <TextField {...params} label="Distance" />}
+            value={distance}
+            label="Distance"
+            onChange={(event)=>setDistance(event.target.value)}
+        >
+        <MenuItem value={20}>20 miles</MenuItem>
+        <MenuItem value={50}>50 miles</MenuItem>
+        <MenuItem value={100}>100 miles</MenuItem>
+        <MenuItem value={200}>200 miles</MenuItem>
+        </Select>
+        </FormControl> */}
         </Grid>
 
-        <Grid item xs={12} sm={7.5}>        
+        <Grid item xs={12} sm={7.5}>  
         <LoadScript googleMapsApiKey = {data.REACT_GOOGLE_API_KEY} libraries={["places"]}>
         <StandaloneSearchBox
-            onLoad={ref => inputRef.current = ref}
+            onLoad={ref => {PlaceinputRef.current = ref}}
             onPlacesChanged={handlePlaceChanged}
-                >
+        >
           <TextField
-            required
-            id="address1"
-            name="address1"
+            // required
+            id="address"
+            name="address"
             label="Address"
             fullWidth
             autoComplete="shipping address-line1"
             variant="outlined"
             onChange={(event)=>setAddress(event.currentTarget.value)}
-          />       
+            {...register('address')}
+            error={addressError&&addressError.length ? true:false}
+            helperText={addressError}
+          />
         </StandaloneSearchBox>
         </LoadScript>
         </Grid>
 
-
-
-      <Grid item xs={12} sm={4}>
+      <Grid item xs={12} sm={4.5}>
       <FormControl>
         <FormLabel id="demo-radio-buttons-group-label"></FormLabel>
         <RadioGroup
             aria-labelledby="demo-radio-buttons-group-label"
             name="radio-buttons-group"
             value={value}
-            onChange={(e)=>setValue(e.currentTarget.value)}
+            onChange={handleRadioChanged}
         >
         <FormControlLabel value="Country" control={<Radio />} label="In Country, State, or City" />
         </RadioGroup>
         </FormControl>
         </Grid>
-        <Grid item xs={12} sm={4}>
+
+        <Grid item xs={12} sm={7.5}>
+        <LoadScript googleMapsApiKey = {data.REACT_GOOGLE_API_KEY} libraries={["places"]}>
+        <StandaloneSearchBox
+            onLoad={ref => CountryinputRef.current = ref}
+            onPlacesChanged={handleCountryChanged}
+            searchOptions={{ types: ['cities'] }}
+                >
           <TextField
-            required
+            // required
             id="Country"
             name="Country"
             label="Country"
@@ -390,9 +457,14 @@ const handlePlaceChanged = () => {
             autoComplete="shipping address-line1"
             variant="outlined"
             onChange={(event)=>setCountry(event.currentTarget.value)}
+            {...register('conutry')}
+            error={countryError&&countryError.length ? true:false}
+            helperText={countryError}
           />
+        </StandaloneSearchBox>
+        </LoadScript>
         </Grid>
-        <Grid item xs={12} sm={4}>
+        {/* <Grid item xs={12} sm={4}>
           <TextField
             required
             id="Zipcode"
@@ -403,7 +475,7 @@ const handlePlaceChanged = () => {
             variant="outlined"
             onChange={(event)=>setZipcode(event.currentTarget.value)}
           />
-        </Grid>
+        </Grid> */}
 
         <Grid item xs={12}>
           <TextField
@@ -432,22 +504,29 @@ const handlePlaceChanged = () => {
         </Grid>
 
       </Grid>
+      
+      
       {/* </StandaloneSearchBox>
         </LoadScript> */}
       <React.Fragment>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
                   variant="contained"
-                  sx={{ mt: 3, ml: 1 }}
+                  color="warning"
+                  size="large"
+                  // sx={{ mt: 3, ml: 1 }}
                   onClick={handleSearchURL}
+                  type="submit"
                 >Search
                 </Button>
               </Box>
             </React.Fragment>
+            </Box>
     </React.Fragment>
     </Paper>
     </Container>
     </ThemeProvider>
+    </div>
   );
 }
 

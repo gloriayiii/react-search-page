@@ -15,7 +15,7 @@ import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 
 import { StandaloneSearchBox, LoadScript } from "@react-google-maps/api";
-import data from '../config';
+import apiKey from '../config';
 
 const distances = [
   {label:'20 miles'},
@@ -28,10 +28,13 @@ const distances = [
 export default function Filters() {
   const location = useLocation();
   const data=location.state;
-  console.log(location.state);
-  const [value, setValue] = React.useState('within');
-  const [distance, setDistance] = React.useState('');
-  const [address, setAddress] = React.useState('');
+  console.log(data);
+  const [value, setValue] = React.useState(data.value);
+  const [distance, setDistance] = React.useState(data.distance);
+  const [address, setAddress] = React.useState(data.address);
+  const [status, setStatus] = React.useState(data.status);
+  const [country, setCountry] = React.useState(data.country);
+
 
   let navigate = useNavigate();
   const goBack = () => {
@@ -99,11 +102,12 @@ export default function Filters() {
             // sx={{ width: 100 }}
             renderInput={(params) => <TextField {...params} label="Distance" />}
             onChange={(event,value)=>setDistance(value)}
+            value={distance}
         />
         </Grid>
 
         <Grid item xs={12}>
-        <LoadScript googleMapsApiKey = {data.REACT_GOOGLE_API_KEY} libraries={["places"]}>
+        <LoadScript googleMapsApiKey = {apiKey.REACT_GOOGLE_API_KEY} libraries={["places"]}>
         <StandaloneSearchBox
         onLoad={ref => inputRef.current = ref}
         onPlacesChanged={handlePlaceChanged}>                   
@@ -115,7 +119,7 @@ export default function Filters() {
             fullWidth
             autoComplete="shipping address-line1"
             variant="outlined"
-            value={data}
+            value={address}
             onChange={(event)=>setAddress(event.currentTarget.value)}
           />
         </StandaloneSearchBox>
@@ -130,6 +134,10 @@ export default function Filters() {
       <Button variant="text">In Country, State or City</Button>
       <Grid container spacing={2}>
       <Grid item xs={12}>
+      <LoadScript googleMapsApiKey = {apiKey.REACT_GOOGLE_API_KEY} libraries={["places"]}>
+        <StandaloneSearchBox
+        onLoad={ref => inputRef.current = ref}
+        onPlacesChanged={handlePlaceChanged}>  
         <TextField
             required
             id="Country"
@@ -138,10 +146,14 @@ export default function Filters() {
             fullWidth
             autoComplete="shipping address-line1"
             variant="outlined"
+            onChange={(event)=>setCountry(event.currentTarget.value)}
+            value={country}
           />
+        </StandaloneSearchBox>
+        </LoadScript>
         </Grid>
       <br></br>
-      <Grid item xs={12} sm={6}>
+      {/* <Grid item xs={12} sm={6}>
         <TextField
             required
             id="Zipcode"
@@ -151,7 +163,7 @@ export default function Filters() {
             autoComplete="shipping address-line1"
             variant="outlined"
           />
-        </Grid>
+        </Grid> */}
         </Grid>
 
       <br></br>
