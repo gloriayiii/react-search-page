@@ -259,7 +259,6 @@ const [place , setPlace] = React.useState();
 async function handleSearchURL() {
   //console.log(value, distance.label, address,country,zip,intervention,status);
   var searchURL;
-  //interventions = intervention.trim().split(',');
   resultData.value = value;
   if(value == 'within'){
     //DONE: set up long and lat from address
