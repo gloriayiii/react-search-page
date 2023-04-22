@@ -27,7 +27,7 @@ import { StandaloneSearchBox, LoadScript } from "@react-google-maps/api";
 import data from '../config';
 import axios from "axios";
 import { useForm } from "react-hook-form";
-import { ErrorMessage } from '@hookform/error-message';
+// import { ErrorMessage } from '@hookform/error-message';
 
 
 const theme = createTheme();
@@ -288,7 +288,8 @@ async function handleSearchURL() {
 
 
 
-const inputRef = useRef();
+const PlaceinputRef = useRef('');
+const CountryinputRef = useRef();
 
 const handlePlaceChanged = () => { 
     const [ place ] = PlaceinputRef.current.getPlaces();
@@ -302,7 +303,9 @@ const handlePlaceChanged = () => {
 
 const handleCountryChanged = () => { 
     const [ country ] = CountryinputRef.current.getPlaces();
+
     if(country){
+      console.log(country);
       console.log(country.formatted_address);
       setCountry(country.formatted_address);
     }
@@ -358,7 +361,7 @@ const [ countryError,setcountryError ] = React.useState('');
       <Divider />
     <React.Fragment>
     <br></br>
-    <Box component="form" onSubmit={handleSubmit(handleSearch)}>
+    <Box component="form" onSubmit={handleSubmit(handleSearchURL)}>
       <Grid container spacing={6}>
 
       <Grid item xs={12} sm={1.5}>
