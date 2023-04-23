@@ -11,8 +11,9 @@ const ClinicalTrials = () => {
 // }
 function getData(){
   const data = location.state;
+  console.log("data")
   console.log(data);
-  setStudies(data);
+  setStudies([data]);
 }
   useEffect(() => {
     getData();
@@ -22,6 +23,10 @@ function getData(){
     <div>
     {studies.map((study, index) => (
       <div className="study" key={index}>
+        <div className="table">
+          <h3>Titiel</h3>
+          <p>{study.protocolSection.identificationModule.officialTitle}</p>
+        </div>
         <div className="table">
           <h3>Study Overview</h3>
           <p>{study.protocolSection.descriptionModule.briefSummary}</p>

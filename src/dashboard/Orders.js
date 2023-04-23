@@ -49,7 +49,7 @@ function navigateToDetailPage(study) {
       <CardContent>
         <Typography variant="h5" component="div">
           {/* <Link to={{ pathname: '/dashboard/detail', state: study }}>Trial{index+1}</Link> */}
-          <a onClick={() => navigateToDetailPage(study)}>Trial{index+1}</a>
+          <a onClick={() => navigateToDetailPage(study)}>{study.protocolSection.identificationModule.briefTitle}</a>
         </Typography>
         <Typography sx={{ mb: 1.5 }} color="text.secondary">
         <p>{study.protocolSection.descriptionModule.briefSummary}</p>
