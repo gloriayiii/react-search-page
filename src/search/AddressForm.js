@@ -233,6 +233,9 @@ const [intervention,setIntervention] = React.useState('waldenstrom');
 const [status,setStatus] = React.useState('rec');
 const [place , setPlace] = React.useState();
 
+const PlaceinputRef = useRef('');
+const CountryinputRef = useRef();
+
 //create address info
 async function handleSearchURL() {
   //console.log(value, distance.label, address,country,zip,intervention,status);
@@ -358,7 +361,7 @@ const [ countryError,setcountryError ] = React.useState('');
       <Divider />
     <React.Fragment>
     <br></br>
-    <Box component="form" onSubmit={handleSubmit(handleSearch)}>
+    <Box component="form" onSubmit={handleSubmit(handleSearchURL)}>
       <Grid container spacing={6}>
 
       <Grid item xs={12} sm={1.5}>
