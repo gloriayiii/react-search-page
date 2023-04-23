@@ -1,24 +1,21 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useNavigate,useLocation } from 'react-router-dom';
 import "./details.css";
 
 const ClinicalTrials = () => {
   const [studies, setStudies] = useState([]);
+  const location = useLocation();
 
+// function preventDefault(event) {
+//   event.preventDefault();
+// }
+function getData(){
+  const data = location.state;
+  console.log(data);
+  setStudies(data);
+}
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          "https://beta.clinicaltrials.gov/api/int/studies/download?format=json&query.intr=waldenstrom&aggFilters=status%3Arec&filter.geo=distance%2840.4443533%2C-79.960835%2C250mi%29"
-        );
-        setStudies(response.data);
-        console.log(response.data)
-        console.log(studies)
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
+    getData();
   }, []);
 
   return (
