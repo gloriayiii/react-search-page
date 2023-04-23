@@ -36,7 +36,9 @@ function navigateToDetailPage(study) {
   const path =  '/dashboard/detail'
   navigate(path,{state : study});
 }
-
+const getFirst150Words = (text) => {
+  return text.split(' ').slice(0, 150).join(' ');
+};
  useEffect(() => {
     getData();
   }, []);
@@ -52,14 +54,14 @@ function navigateToDetailPage(study) {
           <a onClick={() => navigateToDetailPage(study)}>{study.protocolSection.identificationModule.briefTitle}</a>
         </Typography>
         <Typography sx={{ mb: 1.5 }} color="text.secondary">
-        <p>{study.protocolSection.descriptionModule.briefSummary}</p>
+        <p>{getFirst150Words(study.protocolSection.descriptionModule.briefSummary)}</p>
         </Typography>
         <Typography color="text.secondary">
           Location
         </Typography>
         <Typography variant="body2">
           {study.protocolSection.contactsLocationsModule.locations &&
-                study.protocolSection.contactsLocationsModule.locations.map((location, idx) => (
+                study.protocolSection.contactsLocationsModule.locations.slice(0, 5).map((location, idx) => (
                 <p key={idx}>
                     <li>Location{idx+1} :{location.city},{location.state},{location.country}</li>
                     <br></br>

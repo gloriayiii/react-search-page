@@ -4,6 +4,7 @@ import "./details.css";
 
 const ClinicalTrials = () => {
   const [studies, setStudies] = useState([]);
+  const [positions,setPositions]= useState([])
   const location = useLocation();
 
 // function preventDefault(event) {
@@ -14,6 +15,9 @@ function getData(){
   console.log("data")
   console.log(data);
   setStudies([data]);
+  console.log("position")
+  setPositions(data.protocolSection.contactsLocationsModule.locations)
+  console.log(data.protocolSection.contactsLocationsModule.locations)
 }
   useEffect(() => {
     getData();
