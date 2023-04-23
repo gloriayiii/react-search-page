@@ -20,3 +20,9 @@
     margin-top: 0;
     border-radius: 4px;
   }
+
+  .bold-colon::before {
+    content: ":";
+    font-weight: bold;
+    margin-right: 0.2em;
+  }

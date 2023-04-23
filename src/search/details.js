@@ -23,17 +23,55 @@ function getData(){
     getData();
   }, []);
 
+  function addLineBreaks(str) {
+    const substrings = str.split(/(\s\d+\.\s+)/).filter(Boolean);
+    return (
+      <li>
+        {substrings.map((substring, i) =>
+          substring.match(/^\s\d+\.\s+/) ? (
+            <React.Fragment key={i}>
+              <br />
+              <br />
+              {i > 0 && <br />}
+              {substring}
+            </React.Fragment>
+          ) : (
+            <React.Fragment key={i}>{substring}</React.Fragment>
+          )
+        )}
+      </li>
+    );
+  }
+
   return (
     <div>
     {studies.map((study, index) => (
       <div className="study" key={index}>
         <div className="table">
-          <h3>Titiel</h3>
-          <p>{study.protocolSection.identificationModule.officialTitle}</p>
+          <h1>{study.protocolSection.identificationModule.officialTitle}</h1>
         </div>
         <div className="table">
           <h3>Study Overview</h3>
-          <p>{study.protocolSection.descriptionModule.briefSummary}</p>
+            <p>
+              {study.protocolSection.descriptionModule.briefSummary.split("*").map((item, index) => {
+                if (item.includes(':')) {
+                  const splitItem = item.split(':');
+                  return (
+                    <React.Fragment key={index}>
+                      {index > 0 && <><br /><br /></>} {/* add 2 line break after the first item */}
+                      <strong>{splitItem[0]}:</strong> {splitItem[1].trim()} {/* Bold the first item and remove any leading or trailing whitespace from the second item */}
+                    </React.Fragment>
+                  )
+                } else {
+                  return (
+                    <React.Fragment key={index}>
+                      {index > 0 && <br />} {/* Only add a line break after the first item */}
+                      {item.trim()} {/* Remove any leading or trailing whitespace */}
+                    </React.Fragment>
+                  )
+                }
+              })}
+          </p>
         </div>
         <div className="table">
           <h3>Participation Criteria</h3>
@@ -47,7 +85,8 @@ function getData(){
             ))}
           </ul>
           <h3>Eligibility Criteria</h3>
-          <li>{study.protocolSection.eligibilityModule.eligibilityCriteria}</li>
+          <p>{addLineBreaks(study.protocolSection.eligibilityModule.eligibilityCriteria)}</p>
+        
         </div>
         <div className="table">
             <h3>Trail contact</h3>
