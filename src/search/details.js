@@ -19,13 +19,32 @@ function getData(){
     getData();
   }, []);
 
+  function addLineBreaks(str) {
+    const substrings = str.split(/(\s\d+\.\s+)/).filter(Boolean);
+    return (
+      <li>
+        {substrings.map((substring, i) =>
+          substring.match(/^\s\d+\.\s+/) ? (
+            <React.Fragment key={i}>
+              <br />
+              <br />
+              {i > 0 && <br />}
+              {substring}
+            </React.Fragment>
+          ) : (
+            <React.Fragment key={i}>{substring}</React.Fragment>
+          )
+        )}
+      </li>
+    );
+  }
+
   return (
     <div>
     {studies.map((study, index) => (
       <div className="study" key={index}>
         <div className="table">
-          <h3>Titiel</h3>
-          <p>{study.protocolSection.identificationModule.officialTitle}</p>
+          <h1>{study.protocolSection.identificationModule.officialTitle}</h1>
         </div>
         <div className="table">
           <h3>Study Overview</h3>
@@ -62,7 +81,7 @@ function getData(){
             ))}
           </ul>
           <h3>Eligibility Criteria</h3>
-          <li>{study.protocolSection.eligibilityModule.eligibilityCriteria}</li>
+          <p>{addLineBreaks(study.protocolSection.eligibilityModule.eligibilityCriteria)}</p>
         
         </div>
         <div className="table">
