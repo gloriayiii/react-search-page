@@ -311,6 +311,7 @@ async function handleSearchURL() {
   try {
     response = await axios.get(searchURL);
     resultData.data = response.data;
+    console.log(resultData);
 
     let path = `dashboard`; 
     navigate(path,{state : resultData});

@@ -51,9 +51,12 @@ var resultData = {
   value : '',
   address : '',
   country : '',
+  countryHTML : '',
   intervention : '',
   status : '' ,
-  data : []
+  data : [],
+  long : Number,
+  lat : Number
 }
 
 function AND() {
@@ -209,7 +212,10 @@ export default function Filters() {
   const [status, setStatus] = React.useState(data.status);
   const [country, setCountry] = React.useState(data.country);
   const [intervention, setIntervention] = React.useState(data.intervention);
+  const [formattedCountry, setFormattedCountry] =  React.useState('');
   const [place , setPlace] = React.useState();
+  const [long, setLong] = React.useState(data.long);
+  const [lat, setLat] = React.useState(data.lat);
 
   const PlaceinputRef = useRef('');
   const CountryinputRef = useRef();
@@ -218,20 +224,23 @@ export default function Filters() {
   const [ addressError,setAddressError ] = React.useState('');
   const [ countryError,setcountryError ] = React.useState('');
 
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
   async function handleSearchURL() {
     //console.log(value, distance.label, address,country,zip,intervention,status);
     var searchURL;
     resultData.value = value;
-    resultData.address = address;
-    console.log(resultData);
+    // resultData.address = address;
     if(value == 'within'){
       console.log(place);
       resultData.distance = distance;
-      if(!place){
-        var long = data.long;
-        var lat = data.lat;
+      if(!place || place == undefined){
+        console.log('no place check');
+        // var long = data.long;
+        // var lat = data.lat;
+        resultData.address = address;
+        // resultData.long = long;
+        // resultData.lat = lat;
         searchURL = searchUseMiles(long,lat,distance.label,status,intervention);
         // setAddressError('Address is required!');
         // return false;
@@ -240,25 +249,30 @@ export default function Filters() {
       if(place){
       var curLong = place.geometry.location.lat();
       var curLat = place.geometry.location.lng();
+      setLat(curLat);
+      setLong(curLong);
       searchURL = searchUseMiles(curLong,curLat,distance.label,status,intervention);
+      resultData.address = place.formatted_address;
       }
+      resultData.long = long;
+      resultData.lat = lat;
       // resultData.distance = distance;
       // resultData.address = place.formatted_address;
       resultData.status = status;
       resultData.intervention = intervention;
-      console.log(resultData);
     }
+
     if(value == 'Country'){
       if(!country){
         setcountryError('Country is required!');
         return false;
       }
       searchURL = searchUseAddress(country,status,intervention);
-      resultData.country = country;
+      resultData.country = formattedCountry;
+      resultData.countryHTML = country;
       resultData.intervention = intervention;
       resultData.status = status;
     }
-    //console.log(searchURL);
   
     var response = [];
     console.log(resultData);
@@ -267,8 +281,10 @@ export default function Filters() {
       resultData.data = response.data;
       console.log(resultData);
   
-      // let path = `dashboard`; 
-      navigate(0,{state : resultData});
+      // let path = `../dashboard`; 
+      // navigate(location.pathname,{state : resultData});
+      // window.location.reload();
+
       
     } catch (error) {
       console.error(error);
@@ -405,7 +421,7 @@ const handleCountryChanged = () => {
       <LoadScript googleMapsApiKey = {apiKey.REACT_GOOGLE_API_KEY} libraries={["places"]}>
         <StandaloneSearchBox
         onLoad={ref => CountryinputRef.current = ref}
-        onPlacesChanged={handlePlaceChanged}>  
+        onPlacesChanged={handleCountryChanged}>  
         <TextField
             required
             id="Country"
