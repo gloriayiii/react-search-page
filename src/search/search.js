@@ -44,6 +44,170 @@ function getStepContent(step) {
   }
 }
 
+//URL parse part
+
+//parameters
+
+const leftSquareBracket = '%5B';
+const rightSquareBracket = '%5D';
+const leftBracket = '%28';
+const righBracket = '%29';
+const spaceRep = '%20';
+const comma = '%2C';
+const colon = '%3A';
+const LOCATIONSECTION = 'Location';
+const LocationCountry = 'LocationCountry';
+const LocationState = 'LocationState';
+const LocationCity = 'LocationCity';
+const LocationZip = 'LocationZip';
+const LocationStatus = 'LocationStatus';
+
+//URL headers
+const API_QUERY_ADDRESS_HEADER = 'https://beta.clinicaltrials.gov/api/int/studies/download?format=json';
+
+
+// LOGICAL and grammer expressions
+function AND() {
+  return spaceRep+'AND'+spaceRep;
+}
+
+function SEARCH(subSection, condition){
+  return 'SEARCH' + leftSquareBracket + subSection + rightSquareBracket + leftBracket + condition + righBracket;
+}
+
+function AREA(subSubSection, target){
+  return 'AREA' + leftSquareBracket + subSubSection + rightSquareBracket + spaceRep + target;
+}
+
+function DISTANCE(lat, long, distance) {
+  return 'distance' + leftBracket + lat + comma + long + distance + righBracket; //distance should also end with a mi for miles, for example '250mi'
+}
+
+function STATUS(status) {
+  return 'status' + colon + status; //rec for recruiting
+}
+
+
+
+//URL componnet functions
+
+/**
+ * This function is aim to create expression string for invention
+ * @param {String} expression 
+ * @returns URL part for inventury
+ * for example pthe expreesion is Waldenstrom
+ * 
+ */
+
+function inventionFilter(expression) {
+  expression = expression.trim();
+  if(expression == '') return '';
+  return '&query.intr=' + expression;
+}
+
+function aggFilter(expression) {
+  expression = expression.trim();
+  if(expression == '') return '';
+  return '&aggFilters=' + expression;
+}
+
+function advanceFilter(expression) {
+  expression = expression.trim();
+  if(expression == '') return '';
+  return '&filter.advanced=' + expression;
+}
+
+function geoFilter(expression) {
+  expression = expression.trim();
+  if(expression == '') return '';
+  return '&filter.geo=distance' + expression;
+}
+
+/**
+ * for the expr grammer see the API reference:
+ * https://clinicaltrials.gov/api/gui/ref/syntax#searchExpr
+ * Main objective is to use the search context operator in clinical trial API, references can be found at:
+ * https://clinicaltrials.gov/api/gui/ref/expr#searchOp
+ * @param {String} country 
+ * the country that you will search at, if information not found use empty string
+ * @param {String} state 
+ * the state that you will search at, if information not found use empty string
+ * @param {String} city 
+ * the city that you will search at, if information not found use empty string
+ * @param {String} zip 
+ * the ZIP that you will search at, if information not found use empty string
+ * @param {String} status
+ * @returns 
+ * a parsed URL component that can be used in API URL,
+ * for example when we are going to search in Bethesda in maryland the expression will be 
+ * SEARCH[Location](AREA[LocationCity] Bethesda AND AREA[LocationState] Maryland)
+ * the result will be 
+ * SEARCH%5BLocation%5D%28AREA%5BLocationCity%5D+Bethesda+AND+AREA%5BLocationState%5D+Maryland%29
+ * 
+ * @TODO
+ * test it
+ */
+function createSearchEXP(country,state,city, zip) {
+  var expressiongURL;
+  var added = false;
+  var ANDLength = AND().length;
+  if(!country == ''){
+    expressiongURL += AREA(LocationCountry,country);
+    expressiongURL += AND();
+    added = true;
+  }
+  if(!state == ''){
+    expressiongURL += AREA(LocationState,state);
+    expressiongURL += AND();
+    added = true;
+  }
+  if(!city == ''){
+    expressiongURL += AREA(LocationCity,city);
+    expressiongURL += AND();
+    added = true;
+  }
+  if(!zip == ''){
+    expressiongURL += AREA(LocationZip,zip);
+    expressiongURL += AND();
+    added = true;
+  }
+  if(added){
+    expressiongURL = expressiongURL.substring(0,expressiongURL.length - ANDLength);
+  }
+  return SEARCH(LOCATIONSECTION,expressiongURL);
+}
+
+
+function searchUseMiles(long, lat, miles, status, invention){
+  //pre-parse
+
+  // miles
+  miles = miles.substring(0, miles.length - 6 ) + 'mi';
+
+  //status
+  if(status == 'Recruiting'){
+    status = 'rec'
+  }
+
+  //expression
+  return API_QUERY_ADDRESS_HEADER + inventionFilter(invention) + aggFilter(STATUS(status)) + geoFilter(DISTANCE(long,lat,miles));
+}
+
+function searchUseAddress(address, status, invention){
+  //pre-parse
+
+  //TODO: address
+  var country, state, city, zip = '';
+
+  //status
+  if(status == 'Recruiting'){
+    status = 'rec'
+  }
+
+  //expression
+  return API_QUERY_ADDRESS_HEADER + inventionFilter(invention) + aggFilter(STATUS(status)) + advanceFilter(createSearchEXP(country,state,city,zip));
+}
+
 const theme = createTheme();
 
 export default function Checkout() {
