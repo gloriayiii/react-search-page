@@ -1,25 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
 import "./details.css";
-import { GoogleMap, useLoadScript, MarkerF } from "@react-google-maps/api";
-import GOOGLE_MAP_CONFIG from "../config";
-/* global google */
-const mapContainerStyle = {
-  width: "100%",
-  height: "100%",
-}
+import Map from '../search/map';
 
+/* global google */
+// const mapContainerStyle = {
+//   width: "100%",
+//   height: "100%",
+// }
 export default function ClinicalTrials(){
   const [studies, setStudies] = useState([]);
   const [positions, setPositions] = useState([])
   const location = useLocation();
   const [center, setCenter] = useState([]); // change Google map center location
   const [selectedLocationIndex, setSelectedLocationIndex] = useState(null);  // change selected <li> color
-
-  const { isLoaded } = useLoadScript({  // load Google map
-    googleMapsApiKey: GOOGLE_MAP_CONFIG.REACT_GOOGLE_API_KEY,
-    libraries: GOOGLE_MAP_CONFIG.LIBRARIES,
-  });
 
   function getData() {
     const data = location.state;
@@ -145,21 +139,7 @@ export default function ClinicalTrials(){
                 </div>
               </div>
               <div className="columnright">
-                { window.google && (
-                  <GoogleMap
-                    mapContainerStyle={mapContainerStyle}
-                    zoom={10}
-                    center={center}>
-                    {study.protocolSection.contactsLocationsModule.locations &&
-                      study.protocolSection.contactsLocationsModule.locations.map((location, idx) => (
-                        <MarkerF key={idx} position={{
-                          lat: parseFloat(location.geoPoint.lat),
-                          lng: parseFloat(location.geoPoint.lon)
-                        }} />
-                      ))}
-                  </GoogleMap>
-                )}
-
+                <Map />
               </div>
             </div>
           </div>
