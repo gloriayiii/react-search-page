@@ -17,6 +17,7 @@ import { StandaloneSearchBox, LoadScript } from "@react-google-maps/api";
 import apiKey from '../config';
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import { CountertopsSharp } from '@mui/icons-material';
 
 const distances = [
   {label:'20 miles'},
@@ -286,6 +287,7 @@ export default function Filters() {
     }
 
     else if(value == 'Country'){
+      
       if(!country){
         setcountryError('Country is required!');
         return false;
@@ -303,17 +305,14 @@ export default function Filters() {
     try {
       response = await axios.get(searchURL);
       resultData.data = response.data;
-
+      navigate(location.pathname, { state: resultData });
+      window.location.reload();
 
     } catch (error) {
       console.error(error);
     }
   };
 
-  useEffect(() => {
-    navigate(location.pathname, { state: resultData });
-    window.location.reload();
-  }, [resultData.data]);
 
   const goBack = () => {
   let path='../';
