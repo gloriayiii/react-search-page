@@ -13,7 +13,6 @@ import { useNavigate,useLocation } from 'react-router-dom';
 import { useRef } from 'react';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
-
 import { StandaloneSearchBox, LoadScript } from "@react-google-maps/api";
 import apiKey from '../config';
 import { useForm } from "react-hook-form";
@@ -185,21 +184,52 @@ function searchUseMiles(long, lat, miles, status, invention){
   return API_QUERY_ADDRESS_HEADER + inventionFilter(invention) + aggFilter(STATUS(status)) + geoFilter(DISTANCE(long,lat,miles));
 }
 
-function searchUseAddress(address, status, invention){
+
+function searchUseAddress(htmlString, status, invention){
   //pre-parse
+  console.log(htmlString);
+  const address = parseLocationString(htmlString);
 
   //TODO: address
-  var country, state, city, zip = '';
-  country = "United States";
-  country = country.replace(' ', spaceRep);
-  state = 'Maryland';
+  var country, state, city;
+  country = address['country-name'];
+  state = address['region'];
+  city = address['locality'];
   //status
   if(status == 'Recruiting'){
     status = 'rec'
   }
 
   //expression
-  return API_QUERY_ADDRESS_HEADER + inventionFilter(invention) + aggFilter(STATUS(status)) + advanceFilter(createSearchEXP(country,state,city,zip));
+  return API_QUERY_ADDRESS_HEADER + inventionFilter(invention) + aggFilter(STATUS(status)) + advanceFilter(createSearchEXP(country,state,city));
+}
+
+
+function parseLocationString(locationStr) {
+  // Initialize the result object
+  let result = { locality: '', region: '', 'country-name': '' };
+
+  // Create a temporary DOM element to parse the HTML string
+  const tempElement = document.createElement('div');
+  tempElement.innerHTML = locationStr;
+
+  // Extract the relevant data from the HTML elements
+  const localityElement = tempElement.querySelector('.locality');
+  const regionElement = tempElement.querySelector('.region');
+  const countryElement = tempElement.querySelector('.country-name');
+
+  // Update the result object with the extracted data
+  if (localityElement) {
+    result.locality = localityElement.textContent;
+  }
+  if (regionElement) {
+    result.region = regionElement.textContent;
+  }
+  if (countryElement) {
+    result['country-name'] = countryElement.textContent;
+  }
+
+  return result;
 }
 
 export default function Filters() {
@@ -210,9 +240,9 @@ export default function Filters() {
   const [distance, setDistance] = React.useState(data.distance);
   const [address, setAddress] = React.useState(data.address);
   const [status, setStatus] = React.useState(data.status);
-  const [country, setCountry] = React.useState(data.country);
+  const [country, setCountry] = React.useState(data.countryHTML);
   const [intervention, setIntervention] = React.useState(data.intervention);
-  const [formattedCountry, setFormattedCountry] =  React.useState('');
+  const [formattedCountry, setFormattedCountry] =  React.useState(data.country);
   const [place , setPlace] = React.useState();
   const [long, setLong] = React.useState(data.long);
   const [lat, setLat] = React.useState(data.lat);
@@ -236,16 +266,10 @@ export default function Filters() {
       resultData.distance = distance;
       if(!place || place == undefined){
         console.log('no place check');
-        // var long = data.long;
-        // var lat = data.lat;
         resultData.address = address;
-        // resultData.long = long;
-        // resultData.lat = lat;
         searchURL = searchUseMiles(long,lat,distance.label,status,intervention);
-        // setAddressError('Address is required!');
-        // return false;
       }
-      //DONE: set up long and lat from address
+
       if(place){
       var curLong = place.geometry.location.lat();
       var curLat = place.geometry.location.lng();
@@ -256,13 +280,12 @@ export default function Filters() {
       }
       resultData.long = long;
       resultData.lat = lat;
-      // resultData.distance = distance;
-      // resultData.address = place.formatted_address;
+
       resultData.status = status;
       resultData.intervention = intervention;
     }
 
-    if(value == 'Country'){
+    else if(value == 'Country'){
       if(!country){
         setcountryError('Country is required!');
         return false;
@@ -272,24 +295,25 @@ export default function Filters() {
       resultData.countryHTML = country;
       resultData.intervention = intervention;
       resultData.status = status;
+      console.log(resultData);
+      console.log(searchURL);
     }
   
     var response = [];
-    console.log(resultData);
     try {
       response = await axios.get(searchURL);
       resultData.data = response.data;
-      console.log(resultData);
-  
-      let path = `../dashboard`; 
-      navigate(location.pathname,{state : resultData});
-      window.location.reload();
 
-      
+
     } catch (error) {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    navigate(location.pathname, { state: resultData });
+    window.location.reload();
+  }, [resultData.data]);
 
   const goBack = () => {
   let path='../';
@@ -314,10 +338,10 @@ export default function Filters() {
 }
 
 const handleCountryChanged = () => { 
-    const [ country ] = CountryinputRef.current.getPlaces();
-    if(country){
-      console.log(country.formatted_address);
-      setCountry(country.formatted_address);
+    const [ countryChanged ] = CountryinputRef.current.getPlaces();
+    if(countryChanged){
+      setCountry(countryChanged.adr_address);
+      setFormattedCountry(countryChanged.formatted_address);
     }
      
     
@@ -410,7 +434,7 @@ const handleCountryChanged = () => {
         <RadioGroup
             aria-labelledby="demo-radio-buttons-group-label"
             name="radio-buttons-group"
-            value={value == 'Country'? value:null}
+            value={value}
             onChange={handleRadioChanged}
         >
         <FormControlLabel value="Country" control={<Radio />} label="In Country, State, or City" />
@@ -430,8 +454,8 @@ const handleCountryChanged = () => {
             fullWidth
             autoComplete="shipping address-line1"
             variant="outlined"
-            onChange={(event)=>setCountry(event.currentTarget.value)}
-            value={country}
+            onChange={(event)=>setFormattedCountry(event.currentTarget.value)}
+            value={formattedCountry}
           />
         </StandaloneSearchBox>
         </LoadScript>
