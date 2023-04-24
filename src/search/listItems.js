@@ -209,7 +209,7 @@ export default function Filters() {
   const [status, setStatus] = React.useState(data.status);
   const [country, setCountry] = React.useState(data.country);
   const [intervention, setIntervention] = React.useState(data.intervention);
-  const [place , setPlace] = React.useState(data.address);
+  const [place , setPlace] = React.useState();
 
   const PlaceinputRef = useRef('');
   const CountryinputRef = useRef();
@@ -217,6 +217,8 @@ export default function Filters() {
   const { register, handleSubmit } = useForm();
   const [ addressError,setAddressError ] = React.useState('');
   const [ countryError,setcountryError ] = React.useState('');
+
+  let navigate = useNavigate();
 
   async function handleSearchURL() {
     //console.log(value, distance.label, address,country,zip,intervention,status);
@@ -226,18 +228,22 @@ export default function Filters() {
     console.log(resultData);
     if(value == 'within'){
       console.log(place);
+      resultData.distance = distance;
       if(!place){
-        setAddressError('Address is required!');
-        return false;
+        var long = data.long;
+        var lat = data.lat;
+        searchURL = searchUseMiles(long,lat,distance.label,status,intervention);
+        // setAddressError('Address is required!');
+        // return false;
       }
       //DONE: set up long and lat from address
       if(place){
-      var long = place.geometry.location.lat();
-      var lat = place.geometry.location.lng();
-      searchURL = searchUseMiles(long,lat,distance.label,status,intervention);
+      var curLong = place.geometry.location.lat();
+      var curLat = place.geometry.location.lng();
+      searchURL = searchUseMiles(curLong,curLat,distance.label,status,intervention);
       }
-      resultData.distance = distance;
-      resultData.address = place.formatted_address;
+      // resultData.distance = distance;
+      // resultData.address = place.formatted_address;
       resultData.status = status;
       resultData.intervention = intervention;
       console.log(resultData);
@@ -261,16 +267,13 @@ export default function Filters() {
       resultData.data = response.data;
       console.log(resultData);
   
-      let path = `dashboard`; 
-      navigate(path,{state : resultData});
+      // let path = `dashboard`; 
+      navigate(0,{state : resultData});
       
     } catch (error) {
       console.error(error);
     }
-  
-  }
-
-  let navigate = useNavigate();
+  };
 
   const goBack = () => {
   let path='../';
@@ -290,6 +293,7 @@ export default function Filters() {
         console.log(place.geometry.location.lat());
         console.log(place.geometry.location.lng());
         setPlace(place);
+        setAddress(place.formatted_address);
     }       
 }
 
@@ -369,9 +373,9 @@ const handleCountryChanged = () => {
             variant="outlined"
             value={address}
             onChange={(event)=>setAddress(event.currentTarget.value)}
-            {...register('address')}
-            error={addressError&&addressError.length ? true:false}
-            helperText={addressError}
+            // {...register('address')}
+            // error={addressError&&addressError.length ? true:false}
+            // helperText={addressError}
           />
         </StandaloneSearchBox>
         </LoadScript>
