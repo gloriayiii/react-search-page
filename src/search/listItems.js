@@ -281,9 +281,9 @@ export default function Filters() {
       resultData.data = response.data;
       console.log(resultData);
   
-      // let path = `../dashboard`; 
-      // navigate(location.pathname,{state : resultData});
-      // window.location.reload();
+      let path = `../dashboard`; 
+      navigate(location.pathname,{state : resultData});
+      window.location.reload();
 
       
     } catch (error) {
@@ -410,7 +410,7 @@ const handleCountryChanged = () => {
         <RadioGroup
             aria-labelledby="demo-radio-buttons-group-label"
             name="radio-buttons-group"
-            value={value}
+            value={value == 'Country'? value:null}
             onChange={handleRadioChanged}
         >
         <FormControlLabel value="Country" control={<Radio />} label="In Country, State, or City" />
