@@ -69,7 +69,9 @@ var resultData = {
   countryHTML : '',
   intervention : '',
   status : '' ,
-  data : []
+  data : [],
+  long : Number,
+  lat : Number
 }
 
 // LOGICAL and grammer expressions
@@ -256,6 +258,12 @@ const [intervention,setIntervention] = React.useState('waldenstrom');
 const [status,setStatus] = React.useState('rec');
 const [place , setPlace] = React.useState();
 const [formattedCountry, setFormattedCountry] =  React.useState('');
+const [long, setLong] = React.useState();
+const [lat, setLat] = React.useState();
+
+
+const PlaceinputRef = useRef('');
+const CountryinputRef = useRef();
 
 //create address info
 async function handleSearchURL() {
@@ -274,6 +282,8 @@ async function handleSearchURL() {
     var lat = place.geometry.location.lng();
     searchURL = searchUseMiles(long,lat,distance.label,status,intervention);
     }
+    resultData.long = long;
+    resultData.lat = lat;
     resultData.distance = distance;
     resultData.address = place.formatted_address;
     resultData.status = status;
@@ -301,6 +311,7 @@ async function handleSearchURL() {
   try {
     response = await axios.get(searchURL);
     resultData.data = response.data;
+    console.log(resultData);
 
     let path = `dashboard`; 
     navigate(path,{state : resultData});
@@ -312,16 +323,19 @@ async function handleSearchURL() {
 }
 
 
-const PlaceinputRef = useRef('');
-const CountryinputRef = useRef();
+// const PlaceinputRef = useRef('');
+// const CountryinputRef = useRef();
 
 const handlePlaceChanged = () => { 
     const [ place ] = PlaceinputRef.current.getPlaces();
     if(place) { 
+        console.log(place);
         console.log(place.formatted_address);
         console.log(place.geometry.location.lat());
         console.log(place.geometry.location.lng());
         setPlace(place);
+        setLong(place.geometry.location.lat());
+        setLat(place.geometry.location.lng());
     }       
 }
 

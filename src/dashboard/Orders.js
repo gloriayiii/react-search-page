@@ -13,9 +13,8 @@ import { SelectUnstyled } from '@mui/base';
 // }
 
 
-
 export default function Orders() {
-const [studies, setStudies] = useState([]);
+const [studies, setStudies] = React.useState([]);
 const location = useLocation();
 let navigate = useNavigate();
 
@@ -36,12 +35,16 @@ function navigateToDetailPage(study) {
   const path =  '/dashboard/detail'
   navigate(path,{state : study});
 }
+
 const getFirst150Words = (text) => {
   return text.split(' ').slice(0, 150).join(' ');
 };
- useEffect(() => {
+
+
+useEffect(() => {
     getData();
-  }, []);
+}, []);
+
   return (
     <React.Fragment>
       <div>

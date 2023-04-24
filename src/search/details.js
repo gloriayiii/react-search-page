@@ -1,27 +1,47 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate,useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import "./details.css";
+import Map from '../search/map';
 
-const ClinicalTrials = () => {
-  const [studies, setStudies] = useState([]);
-  const [positions,setPositions]= useState([])
-  const location = useLocation();
-
-// function preventDefault(event) {
-//   event.preventDefault();
+/* global google */
+// const mapContainerStyle = {
+//   width: "100%",
+//   height: "100%",
 // }
-function getData(){
-  const data = location.state;
-  console.log("data")
-  console.log(data);
-  setStudies([data]);
-  console.log("position")
-  setPositions(data.protocolSection.contactsLocationsModule.locations)
-  console.log(data.protocolSection.contactsLocationsModule.locations)
-}
+export default function ClinicalTrials(){
+  const [studies, setStudies] = useState([]);
+  const [positions, setPositions] = useState([])
+  const location = useLocation();
+  const [center, setCenter] = useState([]); // change Google map center location
+  const [selectedLocationIndex, setSelectedLocationIndex] = useState(null);  // change selected <li> color
+
+  function getData() {
+    const data = location.state;
+    console.log("data")
+    console.log(data);
+    setStudies([data]);
+    console.log("position")
+    setPositions(data.protocolSection.contactsLocationsModule.locations)
+    console.log(data.protocolSection.contactsLocationsModule.locations)
+    setCenter({
+      lat: parseFloat(data.protocolSection.contactsLocationsModule.locations[0].geoPoint.lat),
+      lng: parseFloat(data.protocolSection.contactsLocationsModule.locations[0].geoPoint.lon)
+    })
+  }
+
   useEffect(() => {
     getData();
   }, []);
+
+
+  const handleLiClick = (locationIndex, location) => {  // <li> click function
+    setCenter({
+      lat: parseFloat(location.geoPoint.lat),
+      lng: parseFloat(location.geoPoint.lon)
+    });
+    setSelectedLocationIndex(locationIndex);
+  };
+
 
   function addLineBreaks(str) {
     const substrings = str.split(/(\s\d+\.\s+)/).filter(Boolean);
@@ -42,16 +62,15 @@ function getData(){
       </li>
     );
   }
-
   return (
     <div>
-    {studies.map((study, index) => (
-      <div className="study" key={index}>
-        <div className="table">
-          <h1>{study.protocolSection.identificationModule.officialTitle}</h1>
-        </div>
-        <div className="table">
-          <h3>Study Overview</h3>
+      {studies.map((study, index) => (
+        <div className="study" key={index}>
+          <div className="table">
+            <h1>{study.protocolSection.identificationModule.officialTitle}</h1>
+          </div>
+          <div className="table">
+            <h3>Study Overview</h3>
             <p>
               {study.protocolSection.descriptionModule.briefSummary.split("*").map((item, index) => {
                 if (item.includes(':')) {
@@ -71,38 +90,61 @@ function getData(){
                   )
                 }
               })}
-          </p>
-        </div>
-        <div className="table">
-          <h3>Participation Criteria</h3>
-          <p>{study.protocolSection.identificationModule.OfficialTitle}</p>
-          <ul>
-            {study.protocolSection.armsInterventionsModule.armGroups.map((arm, idx) => (
-              <p key={idx}>
-                <li>{arm.label}</li>
-                <li>{arm.description}</li>
-              </p>
-            ))}
-          </ul>
-          <h3>Eligibility Criteria</h3>
-          <p>{addLineBreaks(study.protocolSection.eligibilityModule.eligibilityCriteria)}</p>
-        
-        </div>
-        <div className="table">
-            <h3>Trail contact</h3>
-                {study.protocolSection.contactsLocationsModule.centralContacts &&
-                study.protocolSection.contactsLocationsModule.centralContacts.map((contact, idx) => (
+            </p>
+          </div>
+          <div className="table">
+            <h3>Participation Criteria</h3>
+            <p>{study.protocolSection.identificationModule.OfficialTitle}</p>
+            <ul>
+              {study.protocolSection.armsInterventionsModule.armGroups.map((arm, idx) => (
                 <p key={idx}>
-                    <li>{contact.name}</li>
-                    <li>{contact.phone}</li>
-                    <li>{contact.email}</li>
+                  <li>{arm.label}</li>
+                  <li>{arm.description}</li>
                 </p>
-                ))}
+              ))}
+            </ul>
+            <h3>Eligibility Criteria</h3>
+            <p>{addLineBreaks(study.protocolSection.eligibilityModule.eligibilityCriteria)}</p>
+
+          </div>
+          <div className="table">
+            <h3>Trail contact</h3>
+            {study.protocolSection.contactsLocationsModule.centralContacts &&
+              study.protocolSection.contactsLocationsModule.centralContacts.map((contact, idx) => (
+                <p key={idx}>
+                  <li>{contact.name}</li>
+                  <li>{contact.phone}</li>
+                  <li>{contact.email}</li>
+                </p>
+              ))}
+          </div>
+          <div className="table">
+            <h3>Location</h3>
+            <div className="row">
+              <div className="columnleft">
+                <div className="container">
+                  <div className="slider">
+                    {study.protocolSection.contactsLocationsModule.locations &&
+                      study.protocolSection.contactsLocationsModule.locations.map((location, idx) => (
+                        <p key={idx}>
+                          <li
+                            onClick={() => handleLiClick(idx, location)}
+                            className={selectedLocationIndex === idx ? "selected" : ""}
+                          >
+                            {`# ${idx + 1} ${location.city}, ${location.country}, ${location.zip}`}
+                          </li>
+                        </p>
+                      ))}
+                  </div>
+                </div>
+              </div>
+              <div className="columnright">
+                <Map />
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    ))}
-  </div>
+      ))}
+    </div>
   );
 };
-
-export default ClinicalTrials;
