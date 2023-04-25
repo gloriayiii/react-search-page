@@ -8,7 +8,7 @@ const mapContainerStyle = {
   height: "100%",
 }
 
-export default function Map(){
+export default function Map({center: defaultCenter}){
   const location = useLocation();
   const [positions, setPositions] = useState([]);
   const [center, setCenter] = useState([]);
@@ -29,7 +29,10 @@ export default function Map(){
 
   useEffect(() => {
     getData();
-  }, []);
+    if (defaultCenter && defaultCenter.lat && defaultCenter.lng) {
+      setCenter(defaultCenter);
+    }
+  }, [defaultCenter]);
 
   return (
     <LoadScript
