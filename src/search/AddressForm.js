@@ -70,8 +70,8 @@ var resultData = {
   intervention : '',
   status : '' ,
   data : [],
-  long : Number,
-  lat : Number
+  long : -1,
+  lat : -1
 }
 
 // LOGICAL and grammer expressions
@@ -280,10 +280,10 @@ async function handleSearchURL() {
     if(place){
     var long = place.geometry.location.lat();
     var lat = place.geometry.location.lng();
-    searchURL = searchUseMiles(long,lat,distance.label,status,intervention);
-    }
     resultData.long = long;
     resultData.lat = lat;
+    searchURL = searchUseMiles(long,lat,distance.label,status,intervention);
+    }
     resultData.distance = distance;
     resultData.address = place.formatted_address;
     resultData.status = status;
