@@ -55,8 +55,8 @@ var resultData = {
   intervention : '',
   status : '' ,
   data : [],
-  long : Number,
-  lat : Number
+  long : -1,
+  lat : -1
 }
 
 function AND() {
@@ -236,7 +236,7 @@ function parseLocationString(locationStr) {
 export default function Filters() {
   const location = useLocation();
   const data=location.state;
-  console.log(data);
+  // console.log(data);
   const [value, setValue] = React.useState(data.value);
   const [distance, setDistance] = React.useState(data.distance);
   const [address, setAddress] = React.useState(data.address);
@@ -249,7 +249,7 @@ export default function Filters() {
   const [lat, setLat] = React.useState(data.lat);
 
   const PlaceinputRef = useRef('');
-  const CountryinputRef = useRef();
+  const CountryinputRef = useRef('');
 
   const { register, handleSubmit } = useForm();
   const [ addressError,setAddressError ] = React.useState('');
@@ -257,7 +257,7 @@ export default function Filters() {
 
   const navigate = useNavigate();
 
-  async function handleSearchURL() {
+  async function handleSearchURL(event) {
     //console.log(value, distance.label, address,country,zip,intervention,status);
     var searchURL;
     resultData.value = value;
@@ -268,6 +268,8 @@ export default function Filters() {
       if(!place || place == undefined){
         console.log('no place check');
         resultData.address = address;
+        // resultData.long = long;
+        // resultData.lat = lat;
         searchURL = searchUseMiles(long,lat,distance.label,status,intervention);
       }
 
@@ -293,20 +295,29 @@ export default function Filters() {
         return false;
       }
       searchURL = searchUseAddress(country,status,intervention);
+      resultData.address = formattedCountry;
       resultData.country = formattedCountry;
       resultData.countryHTML = country;
       resultData.intervention = intervention;
       resultData.status = status;
       console.log(resultData);
       console.log(searchURL);
+      
+
     }
   
     var response = [];
     try {
       response = await axios.get(searchURL);
       resultData.data = response.data;
+      console.log(resultData);
+      // navigate('../dashboard', { state: resultData });
+      
+      // event.preventDefault();
       navigate(location.pathname, { state: resultData });
-      window.location.reload();
+      window.location.reload(true);
+
+      // navigate('loading', {state : resultData})
 
     } catch (error) {
       console.error(error);
@@ -325,6 +336,11 @@ export default function Filters() {
     console.log(value);
   }
 
+  const handleRadioChangedCountry = (event) => {
+    setValue(event.target.value);
+    console.log(value);
+  }
+
   const handlePlaceChanged = () => { 
     const [ place ] = PlaceinputRef.current.getPlaces();
     if(place) { 
@@ -333,6 +349,8 @@ export default function Filters() {
         console.log(place.geometry.location.lng());
         setPlace(place);
         setAddress(place.formatted_address);
+        setLat(place.geometry.location.lat());
+        setLong(place.geometry.location.lng());
     }       
 }
 
@@ -434,7 +452,7 @@ const handleCountryChanged = () => {
             aria-labelledby="demo-radio-buttons-group-label"
             name="radio-buttons-group"
             value={value}
-            onChange={handleRadioChanged}
+            onChange={handleRadioChangedCountry}
         >
         <FormControlLabel value="Country" control={<Radio />} label="In Country, State, or City" />
         </RadioGroup>
@@ -451,27 +469,16 @@ const handleCountryChanged = () => {
             name="Country"
             label="Country"
             fullWidth
-            autoComplete="shipping address-line1"
+            autoComplete="country"
             variant="outlined"
-            onChange={(event)=>setFormattedCountry(event.currentTarget.value)}
             value={formattedCountry}
+            onChange={(event)=>setFormattedCountry(event.currentTarget.value)}
           />
         </StandaloneSearchBox>
         </LoadScript>
         </Grid>
       <br></br>
-      {/* <Grid item xs={12} sm={6}>
-        <TextField
-            required
-            id="Zipcode"
-            name="Zipcode"
-            label="Zipcode"
-            fullWidth
-            autoComplete="shipping address-line1"
-            variant="outlined"
-          />
-        </Grid> */}
-        </Grid>
+      </Grid>
 
       <br></br>
       <div>

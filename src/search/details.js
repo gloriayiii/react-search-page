@@ -139,7 +139,7 @@ export default function ClinicalTrials(){
                 </div>
               </div>
               <div className="columnright">
-                <Map />
+                <Map center={center}/>
               </div>
             </div>
           </div>
