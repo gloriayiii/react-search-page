@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
 import "./details.css";
 import Map from '../search/map';
-
 /* global google */
 // const mapContainerStyle = {
 //   width: "100%",
@@ -14,6 +13,12 @@ export default function ClinicalTrials(){
   const location = useLocation();
   const [center, setCenter] = useState([]); // change Google map center location
   const [selectedLocationIndex, setSelectedLocationIndex] = useState(null);  // change selected <li> color
+
+  const navigate = useNavigate();
+
+  const handleGoBack = () => {
+    navigate(-1);
+  };
 
   function getData() {
     const data = location.state;
@@ -64,6 +69,7 @@ export default function ClinicalTrials(){
   }
   return (
     <div>
+      <button onClick={handleGoBack}>Back to previous page</button>
       {studies.map((study, index) => (
         <div className="study" key={index}>
           <div className="table">
