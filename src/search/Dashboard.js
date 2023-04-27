@@ -70,15 +70,16 @@ const mdTheme = createTheme();
 
 function DashboardContent() {
   const [open, setOpen] = React.useState(true);
+  console.log('re-render the dashboard check');
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
-  let navigate = useNavigate();
-  const goBack = () => {
-  let path='../';
-  navigate(path);
-};
+//   let navigate = useNavigate();
+//   const goBack = () => {
+//   let path='../';
+//   navigate(path);
+// };
 
 // const inputRef = useRef();
 // const handlePlaceChanged = () => { 

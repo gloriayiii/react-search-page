@@ -1,28 +1,92 @@
 .study {
-    display: flex;
-    flex-direction: column;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
-  }
-  
-  .table {
-    margin-bottom: 20px;
-  }
-  
-  .table h3 {
-    background-color: #1e88e5;
-    color: white;
-    padding: 10px;
-    margin-top: 0;
-    border-radius: 4px;
-  }
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
 
-  .bold-colon::before {
-    content: ":";
-    font-weight: bold;
-    margin-right: 0.2em;
-  }
+.table {
+  margin-bottom: 20px;
+}
+
+.table h3 {
+  background-color: #1e88e5;
+  color: white;
+  padding: 10px;
+  margin-top: 0;
+  border-radius: 4px;
+}
+
+.bold-colon::before {
+  content: ":";
+  font-weight: bold;
+  margin-right: 0.2em;
+}
+
+.table .row .container {
+  height: 400px; /* set a fixed height for the container */
+  margin-right: 25px;
+  overflow-y: scroll; /* enable vertical scrolling */
+}
+.table .row .slider {
+  height: 100%; /* set the height of the slider to 100% of the container */
+}
+
+.table .row {
+  display: flex; /* use flexbox for row layout */
+  flex-direction: row; /* set row direction */
+}
+.table .row .columnleft {
+  width: 40%; /* set width of columns to 50% */
+  height: 400px;
+}
+
+.table .row .columnright {
+  width: 60%; /* set width of columns to 50% */
+  height: 400px;
+}
+
+.table .row .columnleft .container .slider li
+{
+  cursor:pointer
+}
+
+.selected {
+  color: blue;
+  font-weight: bold;
+}
+
+button {
+  background-color: #1e88e5;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 20px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.recruiting-tag {
+  background-color: white;
+  color: green;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.not-recruiting-tag {
+  background-color: white;
+  color: red;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+}
