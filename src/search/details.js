@@ -13,7 +13,7 @@ export default function ClinicalTrials(){
   const location = useLocation();
   const [center, setCenter] = useState([]); // change Google map center location
   const [selectedLocationIndex, setSelectedLocationIndex] = useState(null);  // change selected <li> color
-
+  const [isRecruiting, setRecruiting] = useState(Boolean);
   const navigate = useNavigate();
 
   const handleGoBack = () => {
@@ -32,6 +32,10 @@ export default function ClinicalTrials(){
       lat: parseFloat(data.protocolSection.contactsLocationsModule.locations[0].geoPoint.lat),
       lng: parseFloat(data.protocolSection.contactsLocationsModule.locations[0].geoPoint.lon)
     })
+    const checkRecruitingStatus = (locations) => {
+      return locations.some(location => location.status === "RECRUITING");
+    };
+    setRecruiting(checkRecruitingStatus(data.protocolSection.contactsLocationsModule.locations))
   }
 
   useEffect(() => {
@@ -74,6 +78,15 @@ export default function ClinicalTrials(){
         <div className="study" key={index}>
           <div className="table">
             <h1>{study.protocolSection.identificationModule.officialTitle}</h1>
+          </div>
+          <div className="table">
+            <li>
+              {isRecruiting ? (
+                <span className="recruiting-tag">Recruiting</span>
+              ) : (
+                <span className="not-recruiting-tag">Not Recruiting</span>
+              )}
+            </li>
           </div>
           <div className="table">
             <h3>Study Overview</h3>
@@ -139,6 +152,11 @@ export default function ClinicalTrials(){
                           >
                             {`# ${idx + 1} ${location.city}, ${location.country}, ${location.zip}`}
                           </li>
+                          {location.status === "RECRUITING" ? (
+                            <span className="recruiting-tag">Recruiting</span>
+                          ) : (
+                            <span className="not-recruiting-tag">Not Recruiting</span>
+                          )}
                         </p>
                       ))}
                   </div>
